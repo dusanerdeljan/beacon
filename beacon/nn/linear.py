@@ -1,5 +1,5 @@
 from beacon.nn.module import Module, Parameter
-from beacon.tensor import functions as func
+from beacon.tensor import functions as fn
 
 class Linear(Module):
     
@@ -9,4 +9,4 @@ class Linear(Module):
         self.bias = Parameter(shape=(1, outputs))
 
     def forward(self, x):
-        return func.matmul(func.to_tensor(x), self.weights) + self.bias
+        return fn.matmul(fn.to_tensor(x), self.weights) + self.bias

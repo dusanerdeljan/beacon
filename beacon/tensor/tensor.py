@@ -86,6 +86,14 @@ class Tensor(object):
         from beacon.tensor.functions import divide
         return divide(self._to_tensor(t), self)
 
+    def __pow__(self, t):
+        from beacon.tensor.functions import power
+        return power(self, self._to_tensor(t))
+
+    def __rpow__(self, t):
+        from beacon.tensor.functions import power
+        return power(self._to_tensor(t), self)
+
     def __isub__(self, t):
         self.data = self.data - self._to_tensor(t).data
 

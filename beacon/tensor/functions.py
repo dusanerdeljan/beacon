@@ -125,3 +125,13 @@ def max(t1: Tensor, t2: Tensor):
     if t2.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: x*t2_indices))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def power(t1: Tensor, t2: Tensor):
+    data = np.power(t1.data, t2.data)
+    requires_grad = t1.requires_grad or t2.requires_grad
+    nodes = []
+    if t1.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad, x * t2.data * t1.data ** np.where(t2.data, t2.data - 1, 1.))))
+    if t2.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.data, x * np.log(np.where(t1.data, t1.data, 1.)) * t1.data ** t2.data)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
