@@ -89,9 +89,14 @@ class Tensor(object):
     def __isub__(self, t):
         self.data = self.data - self._to_tensor(t).data
 
-    def item(self):
+    def sum(self):
         from beacon.tensor.functions import sum
         return sum(self)
+
+    def item(self):
+        if self.data.shape != ():
+            raise RuntimeError("Cannot call item on non-scalar type!")
+        return self.data
 
     @classmethod
     def _to_numpy_ndarray(cls, data):
