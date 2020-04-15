@@ -12,7 +12,6 @@ class Tensor(object):
         Stores tensor and derivative function of the primitive operation.
         """
         def __init__(self, tensor, df):
-            import beacon.tensor.functions as F # have to import it here to avoid circular dependencies
             super().__init__()
             self.tensor = tensor
             self.df = df
@@ -48,6 +47,51 @@ class Tensor(object):
         String representation.
         """
         return f"<Tensor data={self.data}, requires_grad={self.requires_grad}>"
+
+    ### Redefined operators ###
+
+    def __add__(self, t):
+        from beacon.tensor.functions import add
+        return add(self, self._to_tensor(t))
+
+    def __radd__(self, t):
+        from beacon.tensor.functions import add
+        return add(self._to_tensor(t), self)
+
+    def __sub__(self, t):
+        from beacon.tensor.functions import sub
+        return sub(self, self._to_tensor(t))
+
+    def __rsub__(self, t):
+        from beacon.tensor.functions import sub
+        return sub(self._to_tensor(t), self)
+
+    def __mul__(self, t):
+        from beacon.tensor.functions import mul
+        return mul(self, self._to_tensor(t))
+
+    def __rmul__(self, t):
+        from beacon.tensor.functions import mul
+        return mul(self._to_tensor(t), self)
+
+    def __neg__(self):
+        from beacon.tensor.functions import neg
+        return neg(self)
+
+    def __truediv__(self, t):
+        from beacon.tensor.functions import divide
+        return divide(self, self._to_tensor(t))
+
+    def __rtruediv__(self, t):
+        from beacon.tensor.functions import divide
+        return divide(self._to_tensor(t), self)
+
+    def __isub__(self, t):
+        self.data = self.data - self._to_tensor(t).data
+
+    def item(self):
+        from beacon.tensor.functions import sum
+        return sum(self)
 
     @classmethod
     def _to_numpy_ndarray(cls, data):

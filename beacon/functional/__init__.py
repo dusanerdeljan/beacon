@@ -1,0 +1,1 @@
+from beacon.functional import functions

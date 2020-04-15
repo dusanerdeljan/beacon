@@ -1,6 +1,12 @@
-# Definitions of Jacobian vector products
 from beacon.tensor import Tensor
 import numpy as np
+
+###########################################
+### Definitions of Jacobian vector products
+###########################################
+
+def to_tensor(x):
+    return Tensor._to_tensor(x)
 
 def broadcast(target_grad, input_grad):
     while np.ndim(input_grad) > np.ndim(target_grad):
@@ -56,4 +62,30 @@ def sum(t: Tensor):
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x * np.ones_like(t.data)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def matmul(t1: Tensor, t2: Tensor):
+    data = np.matmul(t1.data, t2.data)
+    requires_grad = t1.requires_grad or t2.requires_grad
+    nodes = []
+    if t1.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: np.matmul(x, t2.data.T)))
+    if t2.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: np.matmul(t1.data.T, x)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def neg(t: Tensor):
+    data = -t.data
+    requires_grad = t.requires_grad
+    nodes = []
+    if requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: -x))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def exp(t: Tensor):
+    data = np.exp(t.data)
+    requires_grad = t.requires_grad
+    nodes = []
+    if requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: data*x))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
