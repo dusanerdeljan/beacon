@@ -89,3 +89,39 @@ def exp(t: Tensor):
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: data*x))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def tanh(t: Tensor):
+    data = np.tanh(t.data)
+    requires_grad = t.requires_grad
+    nodes = []
+    if requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x / np.cosh(t.data)**2))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def sinh(t: Tensor):
+    data = np.sinh(t.data)
+    requires_grad = t.requires_grad
+    nodes = []
+    if requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x*np.cosh(t.data)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def cosh(t: Tensor):
+    data = np.tanh(t.data)
+    requires_grad = t.requires_grad
+    nodes = []
+    if requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x*np.sinh(t.data)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def max(t1: Tensor, t2: Tensor):
+    data = np.maximum(t1.data, t2.data)
+    requires_grad = t1.requires_grad or t2.requires_grad
+    nodes = []
+    t1_indices = t1.data >= t2.data
+    t2_indices = t2.data > t1.data
+    if t1.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: x*t1_indices))
+    if t2.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: x*t2_indices))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)

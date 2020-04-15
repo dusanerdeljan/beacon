@@ -101,7 +101,7 @@ class Tensor(object):
     @classmethod
     def _to_numpy_ndarray(cls, data):
         """
-        Convert passed data to numpy array if it isn't already and make sure it's shape is (1, ) and not (x,)
+        Convert passed data to numpy array if it isn't already and make sure its shape is (1, x) and not (x,)
         """
         if isinstance(data, np.ndarray):
             return data
@@ -113,7 +113,7 @@ class Tensor(object):
     @classmethod
     def _to_tensor(cls, tensor):
         """
-        Convert passed tensor to Tensor if it isn's already.
+        Convert passed tensor to Tensor if it isn't already.
         """
         if isinstance(tensor, Tensor):
             return tensor
