@@ -107,3 +107,13 @@ def sub(t1: Tensor, t2: Tensor):
     if t2.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad.data, -x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def divide(t1: Tensor, t2: Tensor):
+    data = t1.data / t2.data
+    requires_grad = t1.requires_grad or t2.requires_grad
+    nodes = []
+    if t1.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, x /t2.data)))
+    if t2.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad.data, (-x * t1.data)/(t2.data**2))))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
