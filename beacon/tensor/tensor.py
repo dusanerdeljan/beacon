@@ -37,7 +37,7 @@ class Tensor(object):
         """
         if not self.requires_grad:
             raise RuntimeError("This tensor did not require grad!")
-        grad = grad or Tensor(np.ones_like(self.data, dtype=np.float))
+        grad = self._to_tensor(grad) if grad else Tensor(np.ones_like(self.data, dtype=np.float))
         self.grad.data += grad.data
         for node in self.nodes:
             node.tensor.backward(Tensor(data=node.df(grad.data)))
@@ -46,18 +46,18 @@ class Tensor(object):
         """
         String representation.
         """
-        return f"Tensor data: {self.data}, requires_grad={self.requires_grad}"
+        return f"<Tensor data={self.data}, requires_grad={self.requires_grad}>"
 
     @classmethod
     def _to_numpy_ndarray(cls, data):
         """
-        Convert passed data to numpy array if it isn't already.
+        Convert passed data to numpy array if it isn't already and make sure it's shape is (1, ) and not (x,)
         """
         if isinstance(data, np.ndarray):
             return data
         arr = np.array(data, dtype=np.float)
         if len(arr.shape) == 1:
-            arr = np.reshape(arr, newshape=(arr.shape[0], 1))
+            arr = np.reshape(arr, newshape=(1, arr.shape[0]))
         return arr
 
     @classmethod
@@ -83,7 +83,17 @@ def add(t1: Tensor, t2: Tensor):
     requires_grad = t1.requires_grad or t2.requires_grad
     nodes = []
     if t1.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad, x)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, x)))
     if t2.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad, x)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad.data, x)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def mul(t1: Tensor, t2: Tensor):
+    data = t1.data * t2.data
+    requires_grad = t1.requires_grad or t2.requires_grad
+    nodes = []
+    if t1.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, t2.data*x)))
+    if t2.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad.data, t1.data*x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
