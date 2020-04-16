@@ -8,17 +8,28 @@ from beacon.tensor import functions as fn
 def sigmoid(t: Tensor):
     return 1/ (1 + fn.exp(-t))
 
-def relu(t: Tensor):
-    pass
+def softplus(t: Tensor):
+    return fn.log(1 + fn.exp(t))
 
-def leaky_relu(t: Tensor):
-    pass
+def softsign(t: Tensor):
+    return t / (1 + fn.abs(t))
+
+def hard_sigmoid(t: Tensor):
+    value = 0.2 * t + 0.5
+    return fn.clip(value, 0.0, 1.0)
+
+def relu(t: Tensor, alpha=0.0):
+    return t * (t >= 0.0) + alpha * t * (t < 0.0)
+
+def leaky_relu(t: Tensor, alpha = 0.01):
+    return relu(t, alpha=alpha)
 
 def softmax(t: Tensor):
-    pass
+    y = fn.exp(t)
+    return y / fn.sum(y, axis=-1, keepdims=True)
 
-def elu(t: Tensor):
-    pass
+def elu(t: Tensor, alpha=1.0):
+    return t * (t >= 0.0) + alpha * (fn.exp(t) - 1.0) * (t < 0.0)
 
 def tanh(t: Tensor):
     return fn.tanh(t)

@@ -104,6 +104,24 @@ class Tensor(object):
             raise RuntimeError("Cannot call item on non-scalar type!")
         return self.data
 
+    def __eq__(self, other):
+        return Tensor(self.data == self._to_tensor(other).data)
+
+    def __ne__(self, other):
+        return Tensor(self.data != self._to_tensor(other).data)
+
+    def __lt__(self, other):
+        return Tensor(self.data < self._to_tensor(other).data)
+
+    def __gt__(self, other):
+        return Tensor(self.data > self._to_tensor(other).data)
+
+    def __le__(self, other):
+        return Tensor(self.data <= self._to_tensor(other).data)
+
+    def __ge__(self, other):
+        return Tensor(self.data >= self._to_tensor(other).data) 
+
     @classmethod
     def _to_numpy_ndarray(cls, data):
         """

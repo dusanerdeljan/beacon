@@ -241,3 +241,17 @@ def mean(t: Tensor, axis=None, keepdims=False):
             return g / n
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: mean_grad(x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def where(condition: Tensor, t1: Tensor=None, t2: Tensor=None):
+    t1 = to_tensor(t1) if t1 is not None else None
+    t2 = to_tensor(t2) if t2 is not None else None
+    data = np.where(condition.data, t1.data if t1 else None, t2.data if t2 else None)
+    t1g = to_tensor(t1).requires_grad if t1 else False
+    t2g = to_tensor(t2).requires_grad if t2 else False
+    requires_grad = (t1g or t2g) and not Tensor.NO_GRAD
+    nodes = []
+    if t1g:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: np.where(condition.data, x, np.zeros_like(x))))
+    if t2g:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: np.where(condition.data, np.zeros_like(x), x)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
