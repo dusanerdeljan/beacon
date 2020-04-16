@@ -16,6 +16,8 @@ class Tensor(object):
             self.tensor = tensor
             self.df = df
 
+    NO_GRAD = False
+
     def __init__(self, data, requires_grad = False, nodes = None):
         super().__init__()
         self.data = self._to_numpy_ndarray(data)

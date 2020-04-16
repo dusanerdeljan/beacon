@@ -27,7 +27,7 @@ def match_shape(x, shape, axis, keepdims):
 
 def add(t1: Tensor, t2: Tensor):
     data = t1.data + t2.data
-    requires_grad = t1.requires_grad or t2.requires_grad
+    requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, x)))
@@ -37,7 +37,7 @@ def add(t1: Tensor, t2: Tensor):
 
 def mul(t1: Tensor, t2: Tensor):
     data = t1.data * t2.data
-    requires_grad = t1.requires_grad or t2.requires_grad
+    requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, t2.data*x)))
@@ -47,7 +47,7 @@ def mul(t1: Tensor, t2: Tensor):
 
 def sub(t1: Tensor, t2: Tensor):
     data = t1.data - t2.data
-    requires_grad = t1.requires_grad or t2.requires_grad
+    requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, x)))
@@ -57,7 +57,7 @@ def sub(t1: Tensor, t2: Tensor):
 
 def divide(t1: Tensor, t2: Tensor):
     data = t1.data / t2.data
-    requires_grad = t1.requires_grad or t2.requires_grad
+    requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, x /t2.data)))
@@ -67,7 +67,7 @@ def divide(t1: Tensor, t2: Tensor):
 
 def sum(t: Tensor, axis=None, keepdims=False):
     data = np.sum(t.data, axis=axis, keepdims=keepdims)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: match_shape(x, t.data.shape, axis, keepdims)[0]))
@@ -75,7 +75,7 @@ def sum(t: Tensor, axis=None, keepdims=False):
 
 def matmul(t1: Tensor, t2: Tensor):
     data = np.matmul(t1.data, t2.data)
-    requires_grad = t1.requires_grad or t2.requires_grad
+    requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: np.matmul(x, t2.data.T)))
@@ -85,7 +85,7 @@ def matmul(t1: Tensor, t2: Tensor):
 
 def neg(t: Tensor):
     data = -t.data
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: -x))
@@ -93,7 +93,7 @@ def neg(t: Tensor):
 
 def exp(t: Tensor):
     data = np.exp(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: data*x))
@@ -101,7 +101,7 @@ def exp(t: Tensor):
 
 def tanh(t: Tensor):
     data = np.tanh(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x / np.cosh(t.data)**2))
@@ -109,7 +109,7 @@ def tanh(t: Tensor):
 
 def sinh(t: Tensor):
     data = np.sinh(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x*np.cosh(t.data)))
@@ -117,7 +117,7 @@ def sinh(t: Tensor):
 
 def cosh(t: Tensor):
     data = np.tanh(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x*np.sinh(t.data)))
@@ -125,7 +125,7 @@ def cosh(t: Tensor):
 
 def maximum(t1: Tensor, t2: Tensor):
     data = np.maximum(t1.data, t2.data)
-    requires_grad = t1.requires_grad or t2.requires_grad
+    requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     def max_grad(x, z, y):
         return (x == z) / (1.0 + (x == y))
@@ -137,7 +137,7 @@ def maximum(t1: Tensor, t2: Tensor):
 
 def minimum(t1: Tensor, t2: Tensor):
     data = np.minimum(t1.data, t2.data)
-    requires_grad = t1.requires_grad or t2.requires_grad
+    requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     def min_grad(x, z, y):
         return (x == z) / (1.0 + (x == y))
@@ -149,7 +149,7 @@ def minimum(t1: Tensor, t2: Tensor):
 
 def clip(t: Tensor, min_val, max_val):
     data = np.clip(t.data, min_val, max_val)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x * np.logical_and(data != min_val, data != max_val)))
@@ -157,7 +157,7 @@ def clip(t: Tensor, min_val, max_val):
 
 def power(t1: Tensor, t2: Tensor):
     data = np.power(t1.data, t2.data)
-    requires_grad = t1.requires_grad or t2.requires_grad
+    requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, 
@@ -169,7 +169,7 @@ def power(t1: Tensor, t2: Tensor):
 
 def abs(t: Tensor):
     data = np.abs(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: np.sign(t.data)*x))
@@ -177,7 +177,7 @@ def abs(t: Tensor):
 
 def log(t: Tensor):
     data = np.log(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x / t.data))
@@ -185,7 +185,7 @@ def log(t: Tensor):
 
 def sqrt(t: Tensor):
     data = np.sqrt(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: 0.5*x*(t.data**-0.5)))
@@ -193,7 +193,7 @@ def sqrt(t: Tensor):
 
 def square(t: Tensor):
     data = np.square(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: 2*x*t.data))
@@ -201,7 +201,7 @@ def square(t: Tensor):
 
 def reshape(t: Tensor, shape):
     data = np.reshape(t.data, newshape=shape)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: np.reshape(x, np.shape(t.data))))
@@ -209,7 +209,7 @@ def reshape(t: Tensor, shape):
 
 def sin(t: Tensor):
     data = np.sin(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x * np.cos(t.data)))
@@ -217,7 +217,7 @@ def sin(t: Tensor):
 
 def cos(t: Tensor):
     data = np.cos(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: -x * np.sin(t.data)))
@@ -225,7 +225,7 @@ def cos(t: Tensor):
 
 def tan(t: Tensor):
     data = np.tan(t.data)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x / np.cos(t.data)**2))
@@ -233,7 +233,7 @@ def tan(t: Tensor):
 
 def mean(t: Tensor, axis=None, keepdims=False):
     data = np.mean(t.data, axis=axis, dtype=np.float, keepdims=keepdims)
-    requires_grad = t.requires_grad
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
         def mean_grad(x):

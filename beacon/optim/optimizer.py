@@ -1,4 +1,6 @@
+from beacon.nn import beacon
 from abc import ABC, abstractmethod
+from beacon.tensor import Tensor
 
 class Optimizer(ABC):
     """
@@ -10,12 +12,12 @@ class Optimizer(ABC):
         self.parameters = parameters
         self.lr = lr
 
-    @abstractmethod
     def step(self):
         """
         Updates all the parameters in the neural network.
         """
-        pass
+        with beacon.no_grad():
+            self._step()
 
     def zero_grad(self):
         """
@@ -23,3 +25,10 @@ class Optimizer(ABC):
         """
         for parameter in self.parameters:
             parameter.zero_grad()
+
+    @abstractmethod
+    def _step(self):
+        """
+        Updates all the parameters in the neural network.
+        """
+        pass
