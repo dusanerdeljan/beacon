@@ -97,10 +97,6 @@ class Tensor(object):
     def __isub__(self, t):
         self.data = self.data - self._to_tensor(t).data
 
-    def sum(self):
-        from beacon.tensor.functions import sum
-        return sum(self)
-
     def item(self):
         if self.data.shape != ():
             raise RuntimeError("Cannot call item on non-scalar type!")

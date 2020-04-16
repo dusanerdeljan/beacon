@@ -16,6 +16,15 @@ def broadcast(target_grad, input_grad):
             input_grad = np.sum(input_grad, axis=axis, keepdims=True)
     return input_grad
 
+def match_shape(x, shape, axis, keepdims):
+    if shape == ():
+        return x, 1
+    axis = list(axis) if isinstance(axis, tuple) else axis
+    new_shape = np.array(shape)
+    new_shape[axis] = 1
+    num_reps = np.prod(np.array(shape)[axis])
+    return np.reshape(x, new_shape) + np.zeros(shape, dtype=np.float), num_reps
+
 def add(t1: Tensor, t2: Tensor):
     data = t1.data + t2.data
     requires_grad = t1.requires_grad or t2.requires_grad
@@ -56,12 +65,12 @@ def divide(t1: Tensor, t2: Tensor):
         nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad.data, (-x * t1.data)/(t2.data**2))))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
-def sum(t: Tensor):
-    data = t.data.sum()
+def sum(t: Tensor, axis=None, keepdims=False):
+    data = np.sum(t.data, axis=axis, keepdims=keepdims)
     requires_grad = t.requires_grad
     nodes = []
     if requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x * np.ones_like(t.data)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: match_shape(x, t.data.shape, axis, keepdims)[0]))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def matmul(t1: Tensor, t2: Tensor):
@@ -220,4 +229,15 @@ def tan(t: Tensor):
     nodes = []
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: x / np.cos(t.data)**2))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def mean(t: Tensor, axis=None, keepdims=False):
+    data = np.mean(t.data, axis=axis, dtype=np.float, keepdims=keepdims)
+    requires_grad = t.requires_grad
+    nodes = []
+    if requires_grad:
+        def mean_grad(x):
+            g, n = match_shape(x, np.shape(t.data), axis, keepdims)
+            return g / n
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: mean_grad(x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
