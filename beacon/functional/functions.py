@@ -28,10 +28,10 @@ def tanh(t: Tensor):
 ########################
 
 def mean_squared_error(output: Tensor, target: Tensor):
-    pass
+    return fn.sum(((output-target)**2) / output.data.shape[1])
 
 def mean_absolute_error(output: Tensor, target: Tensor):
-    pass
+    return fn.sum(((output - target)) / output.data.shape[1])
 
 def cross_entropy(output: Tensor, target: Tensor):
     pass
