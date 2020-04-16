@@ -2,7 +2,7 @@ import numpy as np
 
 class Tensor(object):
     """
-    Wrapper around numpy's ndarray with automatic computational graph constuction
+    Wrapper around numpy's ndarray with dynamic computational graph constuction
     and automatic differentiation.
     """
 
@@ -125,7 +125,7 @@ class Tensor(object):
     @classmethod
     def _to_numpy_ndarray(cls, data):
         """
-        Convert passed data to numpy array if it isn't already and make sure its shape is (1, x) and not (x,)
+        Convert passed data to numpy array if it isn't already and make sure its shape is (1, x) and not (x,).
         """
         if isinstance(data, np.ndarray):
             return data

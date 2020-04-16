@@ -255,3 +255,6 @@ def where(condition: Tensor, t1: Tensor=None, t2: Tensor=None):
     if t2g:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: np.where(condition.data, np.zeros_like(x), x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def zeros_like(t: Tensor):
+    return to_tensor(np.zeros_like(t.data))
