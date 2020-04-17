@@ -8,31 +8,17 @@ import numpy as np
 def to_tensor(x):
     return Tensor._to_tensor(x)
 
-def broadcast(target_grad, input_grad):
-    while np.ndim(input_grad) > np.ndim(target_grad):
-        input_grad = np.sum(input_grad, axis=0)
-    for axis, dim in enumerate(np.shape(target_grad)):
-        if dim == 1:
-            input_grad = np.sum(input_grad, axis=axis, keepdims=True)
-    return input_grad
-
-def match_shape(x, shape, axis, keepdims):
-    if shape == ():
-        return x, 1
-    axis = list(axis) if isinstance(axis, tuple) else axis
-    new_shape = np.array(shape)
-    new_shape[axis] = 1
-    num_reps = np.prod(np.array(shape)[axis])
-    return np.reshape(x, new_shape) + np.zeros(shape, dtype=np.float), num_reps
+def zeros_like(t: Tensor):
+    return to_tensor(np.zeros_like(t.data))
 
 def add(t1: Tensor, t2: Tensor):
     data = t1.data + t2.data
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, x)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: _broadcast(t1.grad.data, x)))
     if t2.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad.data, x)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: _broadcast(t2.grad.data, x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def mul(t1: Tensor, t2: Tensor):
@@ -40,9 +26,9 @@ def mul(t1: Tensor, t2: Tensor):
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, t2.data*x)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: _broadcast(t1.grad.data, t2.data*x)))
     if t2.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad.data, t1.data*x)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: _broadcast(t2.grad.data, t1.data*x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def sub(t1: Tensor, t2: Tensor):
@@ -50,9 +36,9 @@ def sub(t1: Tensor, t2: Tensor):
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, x)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: _broadcast(t1.grad.data, x)))
     if t2.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad.data, -x)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: _broadcast(t2.grad.data, -x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def divide(t1: Tensor, t2: Tensor):
@@ -60,9 +46,9 @@ def divide(t1: Tensor, t2: Tensor):
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
     if t1.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.grad.data, x /t2.data)))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: _broadcast(t1.grad.data, x /t2.data)))
     if t2.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.grad.data, (-x * t1.data)/(t2.data**2))))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: _broadcast(t2.grad.data, (-x * t1.data)/(t2.data**2))))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def sum(t: Tensor, axis=None, keepdims=False):
@@ -70,7 +56,7 @@ def sum(t: Tensor, axis=None, keepdims=False):
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: match_shape(x, t.data.shape, axis, keepdims)[0]))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: _match_shape(x, t.data.shape, axis, keepdims)[0]))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def matmul(t1: Tensor, t2: Tensor):
@@ -130,9 +116,9 @@ def maximum(t1: Tensor, t2: Tensor):
     def max_grad(x, z, y):
         return (x == z) / (1.0 + (x == y))
     if t1.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.data, x * max_grad(t1.data, data, t2.data))))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: _broadcast(t1.data, x * max_grad(t1.data, data, t2.data))))
     if t2.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.data, x * max_grad(t2.data, data, t1.data))))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: _broadcast(t2.data, x * max_grad(t2.data, data, t1.data))))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def minimum(t1: Tensor, t2: Tensor):
@@ -142,9 +128,9 @@ def minimum(t1: Tensor, t2: Tensor):
     def min_grad(x, z, y):
         return (x == z) / (1.0 + (x == y))
     if t1.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: broadcast(t1.data, x * min_grad(t1.data, data, t2.data))))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: _broadcast(t1.data, x * min_grad(t1.data, data, t2.data))))
     if t2.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: broadcast(t2.data, x * min_grad(t2.data, data, t1.data))))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: _broadcast(t2.data, x * min_grad(t2.data, data, t1.data))))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def clip(t: Tensor, min_val, max_val):
@@ -161,10 +147,10 @@ def power(t1: Tensor, t2: Tensor):
     nodes = []
     if t1.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, 
-        df=lambda x: broadcast(t1.data, x*t2.data*(t1.data**np.where(t2.data, t2.data-1, 1.)))))
+        df=lambda x: _broadcast(t1.data, x*t2.data*(t1.data**np.where(t2.data, t2.data-1, 1.)))))
     if t2.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t2, 
-        df=lambda x: broadcast(t2.data, x * np.log((np.where(t1.data, t1.data, 1.)) * data))))
+        df=lambda x: _broadcast(t2.data, x * np.log((np.where(t1.data, t1.data, 1.)) * data))))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def abs(t: Tensor):
@@ -237,7 +223,7 @@ def mean(t: Tensor, axis=None, keepdims=False):
     nodes = []
     if requires_grad:
         def mean_grad(x):
-            g, n = match_shape(x, np.shape(t.data), axis, keepdims)
+            g, n = _match_shape(x, np.shape(t.data), axis, keepdims)
             return g / n
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: mean_grad(x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
@@ -256,5 +242,19 @@ def where(condition: Tensor, t1: Tensor=None, t2: Tensor=None):
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: np.where(condition.data, np.zeros_like(x), x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
-def zeros_like(t: Tensor):
-    return to_tensor(np.zeros_like(t.data))
+def _broadcast(target_grad, input_grad):
+    while np.ndim(input_grad) > np.ndim(target_grad):
+        input_grad = np.sum(input_grad, axis=0)
+    for axis, dim in enumerate(np.shape(target_grad)):
+        if dim == 1:
+            input_grad = np.sum(input_grad, axis=axis, keepdims=True)
+    return input_grad
+
+def _match_shape(x, shape, axis, keepdims):
+    if shape == ():
+        return x, 1
+    axis = list(axis) if isinstance(axis, tuple) else axis
+    new_shape = np.array(shape)
+    new_shape[axis] = 1
+    num_reps = np.prod(np.array(shape)[axis])
+    return np.reshape(x, new_shape) + np.zeros(shape, dtype=np.float), num_reps
