@@ -9,7 +9,7 @@ class RMSProp(Optimizer):
         self.beta = fn.to_tensor(beta)
         self.E = [fn.zeros_like(p) for p in self.parameters]
 
-    def _step(self):
+    def _step(self, epoch):
         grads = [p.grad for p in self.parameters]
         for p, g, e in zip(self.parameters, grads, self.E):
             e = self.beta * e + (1 - self.beta) * fn.square(g)

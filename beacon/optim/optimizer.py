@@ -12,12 +12,12 @@ class Optimizer(ABC):
         self.parameters = parameters
         self.lr = lr
 
-    def step(self):
+    def step(self, epoch=1):
         """
         Updates all the parameters in the neural network.
         """
         with beacon.no_grad():
-            self._step()
+            self._step(epoch)
 
     def zero_grad(self):
         """
@@ -27,7 +27,7 @@ class Optimizer(ABC):
             parameter.zero_grad()
 
     @abstractmethod
-    def _step(self):
+    def _step(self, epoch):
         """
         Updates all the parameters in the neural network.
         """

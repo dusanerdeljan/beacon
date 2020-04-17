@@ -8,7 +8,7 @@ class Adagrad(Optimizer):
         self.epison = epsilon
         self.G = [fn.zeros_like(p) for p in self.parameters]
 
-    def _step(self):
+    def _step(self, epoch):
         grads = [p.grad for p in self.parameters]
         for p, g, gs in zip(self.parameters, grads, self.G):
             gs += fn.square(g)

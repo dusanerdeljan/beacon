@@ -8,7 +8,7 @@ class Momentum(Optimizer):
         self.momentum = fn.to_tensor(momentum)
         self.vs = [fn.zeros_like(p) for p in self.parameters]
 
-    def _step(self):
+    def _step(self, epoch):
         grads = [p.grad for p in self.parameters]
         for p, g, v in zip(self.parameters, grads, self.vs):
             v = self.momentum*v + self.lr*g
