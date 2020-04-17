@@ -6,3 +6,4 @@ from beacon.optim.adagrad import Adagrad
 from beacon.optim.adadelta import Adadelta
 from beacon.optim.rmsprop import RMSProp
 from beacon.optim.nadam import Nadam
+from beacon.optim.adamax import Adamax
