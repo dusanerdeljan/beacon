@@ -10,8 +10,11 @@ class Linear(Module):
 
         ## Parameters
         inputs: `int` - number of incomming inputs
+
         output: `int` - number of neurons
+
         weight_initializer: `callable` - defaults to normal
+        
         bias_initializer: `callable` - defaults to zeros
         """
         super().__init__()

@@ -43,6 +43,7 @@ def add(t1: Tensor, t2: Tensor):
 
     ## Parameters:
     t1: `Tensor` - first tensor
+
     t2: `Tensor` - second tensor
 
     ## Example usage
@@ -69,6 +70,7 @@ def mul(t1: Tensor, t2: Tensor):
 
     ## Parameters:
     t1: `Tensor` - first tensor
+
     t2: `Tensor` - second tensor
 
     ## Example usage
@@ -95,6 +97,7 @@ def sub(t1: Tensor, t2: Tensor):
 
     ## Parameters:
     t1: `Tensor` - first tensor
+
     t2: `Tensor` - second tensor
 
     ## Example usage
@@ -121,6 +124,7 @@ def divide(t1: Tensor, t2: Tensor):
 
     ## Parameters:
     t1: `Tensor` - first tensor
+
     t2: `Tensor` - second tensor
 
     ## Example usage
@@ -147,7 +151,9 @@ def sum(t: Tensor, axis=None, keepdims=False):
 
     ## Parameters:
     t: `Tensor`
+
     axis: `int` - defaults to None
+
     keepdims: `bool` - defaults to False
 
     ## Example usage
@@ -171,6 +177,7 @@ def matmul(t1: Tensor, t2: Tensor):
 
     ## Parameters:
     t1: `Tensor` - first tensor
+
     t2: `Tensor` - second tensor
 
     ## Example usage
@@ -307,6 +314,7 @@ def maximum(t1: Tensor, t2: Tensor):
 
     ## Parameters:
     t1: `Tensor` - first tensor
+
     t2: `Tensor` - second tensor
 
     ## Example usage
@@ -335,6 +343,7 @@ def minimum(t1: Tensor, t2: Tensor):
 
     ## Parameters:
     t1: `Tensor` - first tensor
+
     t2: `Tensor` - second tensor
 
     ## Example usage
@@ -363,7 +372,9 @@ def clip(t: Tensor, min_val, max_val):
 
     ## Parameters:
     t: `Tensor` - input tensor
+
     min_val: `float` - minimum value
+
     max_val: `float` - maximum value
 
     ## Example usage
@@ -387,6 +398,7 @@ def power(t1: Tensor, t2: Tensor):
 
     ## Parameters:
     t1: `Tensor` - first tensor
+
     t2: `Tensor` - second tensor
 
     ## Example usage
@@ -503,6 +515,7 @@ def reshape(t: Tensor, shape):
 
     ## Parameters:
     t: `Tensor` - input tensor
+
     shape: `tuple` - new shape
 
     ## Example usage
@@ -592,7 +605,9 @@ def mean(t: Tensor, axis=None, keepdims=False):
 
     ## Parameters:
     t: `Tensor` - input tensor
+
     axis: `int` - defaults to None
+
     keepdims: `bool` - defaults to False
 
     ## Example usage
@@ -619,7 +634,9 @@ def where(condition: Tensor, t1: Tensor=None, t2: Tensor=None):
 
     ## Parameters:
     condition: `Tensor` - condition tensor
+
     t1: `Tensor` - tensor from which to take elements if condition is met, defaults to None
+    
     t2: `Tensor` - tensor from which to take elements if condition is not met, defaults to None
 
     ## Example usage

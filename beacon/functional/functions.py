@@ -84,6 +84,7 @@ def relu(t: Tensor, alpha=0.0):
 
     ## Parameters
     t: `Tensor` - tensor on which to apply activation function
+    
     alpha: `float` - scale factor, defaults to 0.0
 
     ## Example usage
@@ -103,6 +104,7 @@ def leaky_relu(t: Tensor, alpha = 0.01):
 
     ## Parameters
     t: `Tensor` - tensor on which to apply activation function
+
     alpha: `float` - scale factor, defaults to 0.01
 
     ## Example usage
@@ -141,6 +143,7 @@ def elu(t: Tensor, alpha=1.0):
 
     ## Parameters
     t: `Tensor` - tensor on which to apply activation function
+
     alpha: `float` - scale factor, defaults to 1.0
 
     ## Example usage
@@ -182,6 +185,7 @@ def mean_squared_error(output: Tensor, target: Tensor):
 
     ## Parameters
     output: `Tensor` - model's prediction
+
     target: `Target` - training sample targets
 
     ## Example usage
@@ -202,6 +206,7 @@ def mean_absolute_error(output: Tensor, target: Tensor):
 
     ## Parameters
     output: `Tensor` - model's prediction
+
     target: `Target` - training sample targets
 
     ## Example usage
@@ -222,6 +227,7 @@ def categorical_crossentropy(output: Tensor, target: Tensor):
 
     ## Parameters
     output: `Tensor` - model's prediction
+
     target: `Target` - training sample targets
 
     ## Example usage
@@ -243,6 +249,7 @@ def binary_crossentropy(output: Tensor, target: Tensor):
 
     ## Parameters
     output: `Tensor` - model's prediction
+
     target: `Target` - training sample targets
 
     ## Example usage
@@ -264,6 +271,7 @@ def nll_loss(output: Tensor, target: Tensor):
 
     ## Parameters
     output: `Tensor` - model's prediction
+
     target: `Target` - training sample targets
 
     ## Example usage
@@ -285,6 +293,7 @@ def quadratic(output: Tensor, target: Tensor):
 
     ## Parameters
     output: `Tensor` - model's prediction
+
     target: `Target` - training sample targets
 
     ## Example usage
@@ -305,6 +314,7 @@ def half_quadratic(output: Tensor, target: Tensor):
 
     ## Parameters
     output: `Tensor` - model's prediction
+
     target: `Target` - training sample targets
 
     ## Example usage

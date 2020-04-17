@@ -8,6 +8,7 @@ class Parameter(Tensor):
 
         ## Prameters:
         shape: `tuple` - shape of the parameter
+        
         initializer: `callable` - parameter initializer, defaults to normal
         """
         super().__init__(data=initializer(shape), requires_grad=True, nodes=None)
