@@ -73,7 +73,7 @@ for epoch in range(1, 1001):
     full_loss = 0
     n_loss = 0
 
-    for x, y in data_generator(x_train, y_train, batch_size=4):
+    for x, y in data_generator(x_train, y_train, batch_size=4, shuffle=True):
         optimizer.zero_grad()
         output = model(x)
         loss = F.mean_squared_error(output, y)
