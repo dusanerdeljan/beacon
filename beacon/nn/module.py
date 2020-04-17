@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 from inspect import getmembers
 
 class Module(ABC):
-    """
-    Represents abstract module in a neural network.
-    """
 
     def __init__(self):
+        """
+        Represents abstract module in a neural network.
+        """
         super().__init__()
 
     def parameters(self):

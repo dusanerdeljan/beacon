@@ -1,17 +1,59 @@
 from beacon.tensor import Tensor
 import numpy as np
 
-###########################################
-### Definitions of Jacobian vector products
-###########################################
+############################
+### Differentiable operators
+############################
 
 def to_tensor(x):
+    """
+    Convert input parameter to tensor if it isn't already.
+
+    ## Parameters
+    x: `Tensor-like` - input parameter
+
+    ## Example usage
+    ```python
+    from beacon.tensor import functinos as fn
+    t = fn.to_tensor(10.0)
+    ```
+    """
     return Tensor._to_tensor(x)
 
 def zeros_like(t: Tensor):
+    """
+    Return zero-tensor with the same shape as the input tensor.
+
+    ## Parameters
+    t: `Tensor` - input parameter
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functinos as fn
+    t = Tensor([1, 2, 3])
+    x = fn.zeros_like(t)
+    ```
+    """
     return to_tensor(np.zeros_like(t.data))
 
 def add(t1: Tensor, t2: Tensor):
+    """
+    Adds two tensors.
+
+    ## Parameters:
+    t1: `Tensor` - first tensor
+    t2: `Tensor` - second tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t1 = Tensor([1, 2, 3])
+    t2 = Tensor([4, 5, 6])
+    x = fn.add(t1, t2)
+    ```
+    """
     data = t1.data + t2.data
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
@@ -22,6 +64,22 @@ def add(t1: Tensor, t2: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def mul(t1: Tensor, t2: Tensor):
+    """
+    Multiplites two tensors (dot-product).
+
+    ## Parameters:
+    t1: `Tensor` - first tensor
+    t2: `Tensor` - second tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t1 = Tensor([1, 2, 3])
+    t2 = Tensor([4, 5, 6])
+    x = fn.mul(t1, t2)
+    ```
+    """
     data = t1.data * t2.data
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
@@ -32,6 +90,22 @@ def mul(t1: Tensor, t2: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def sub(t1: Tensor, t2: Tensor):
+    """
+    Substracts two tensors.
+
+    ## Parameters:
+    t1: `Tensor` - first tensor
+    t2: `Tensor` - second tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t1 = Tensor([1, 2, 3])
+    t2 = Tensor([4, 5, 6])
+    x = fn.sub(t1, t2)
+    ```
+    """
     data = t1.data - t2.data
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
@@ -42,6 +116,22 @@ def sub(t1: Tensor, t2: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def divide(t1: Tensor, t2: Tensor):
+    """
+    Divides two tensors.
+
+    ## Parameters:
+    t1: `Tensor` - first tensor
+    t2: `Tensor` - second tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t1 = Tensor([1, 2, 3])
+    t2 = Tensor([4, 5, 6])
+    x = fn.divide(t1, t2)
+    ```
+    """
     data = t1.data / t2.data
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
@@ -52,6 +142,22 @@ def divide(t1: Tensor, t2: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def sum(t: Tensor, axis=None, keepdims=False):
+    """
+    Sums all the elements in tensor along given axis
+
+    ## Parameters:
+    t: `Tensor`
+    axis: `int` - defaults to None
+    keepdims: `bool` - defaults to False
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.sum(t)
+    ```
+    """
     data = np.sum(t.data, axis=axis, keepdims=keepdims)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -60,6 +166,22 @@ def sum(t: Tensor, axis=None, keepdims=False):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def matmul(t1: Tensor, t2: Tensor):
+    """
+    Matrix multiplications of two tensors.
+
+    ## Parameters:
+    t1: `Tensor` - first tensor
+    t2: `Tensor` - second tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t1 = Tensor([1, 2, 3])
+    t2 = Tensor([4, 5, 6])
+    x = fn.matmul(t1, t2)
+    ```
+    """
     data = np.matmul(t1.data, t2.data)
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
@@ -70,6 +192,20 @@ def matmul(t1: Tensor, t2: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def neg(t: Tensor):
+    """
+    Unary negation of tensor elements.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = -t
+    ```
+    """
     data = -t.data
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -78,6 +214,20 @@ def neg(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def exp(t: Tensor):
+    """
+    Applies exp function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.exp(t)
+    ```
+    """
     data = np.exp(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -86,6 +236,20 @@ def exp(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def tanh(t: Tensor):
+    """
+    Applies tanh function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.tanh(t)
+    ```
+    """
     data = np.tanh(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -94,6 +258,20 @@ def tanh(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def sinh(t: Tensor):
+    """
+    Applies sinh function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.sinh(t)
+    ```
+    """
     data = np.sinh(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -102,6 +280,20 @@ def sinh(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def cosh(t: Tensor):
+    """
+    Applies cosh function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.cosh(t)
+    ```
+    """
     data = np.tanh(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -110,6 +302,22 @@ def cosh(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def maximum(t1: Tensor, t2: Tensor):
+    """
+    Element-wise maximum of two tensor.
+
+    ## Parameters:
+    t1: `Tensor` - first tensor
+    t2: `Tensor` - second tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t1 = Tensor([1, 4, 3])
+    t2 = Tensor([2, 5, 6])
+    x = fn.maximum(t1, t2)
+    ```
+    """
     data = np.maximum(t1.data, t2.data)
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
@@ -122,6 +330,22 @@ def maximum(t1: Tensor, t2: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def minimum(t1: Tensor, t2: Tensor):
+    """
+    Element-wise minimum of two tensor.
+
+    ## Parameters:
+    t1: `Tensor` - first tensor
+    t2: `Tensor` - second tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t1 = Tensor([1, 4, 3])
+    t2 = Tensor([2, 5, 6])
+    x = fn.minimum(t1, t2)
+    ```
+    """
     data = np.minimum(t1.data, t2.data)
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
@@ -134,6 +358,22 @@ def minimum(t1: Tensor, t2: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def clip(t: Tensor, min_val, max_val):
+    """
+    Clips input tensor to minimum and maximum value.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+    min_val: `float` - minimum value
+    max_val: `float` - maximum value
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([2, 4, 6])
+    x = fn.clip(t, 3, 8)
+    ```
+    """
     data = np.clip(t.data, min_val, max_val)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -142,6 +382,22 @@ def clip(t: Tensor, min_val, max_val):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def power(t1: Tensor, t2: Tensor):
+    """
+    Raises first tensor to the power of second tensor.
+
+    ## Parameters:
+    t1: `Tensor` - first tensor
+    t2: `Tensor` - second tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t1 = Tensor([1, 4, 3])
+    t2 = Tensor([2, 5, 6])
+    x = fn.power(t1, t2)
+    ```
+    """
     data = np.power(t1.data, t2.data)
     requires_grad = (t1.requires_grad or t2.requires_grad) and not Tensor.NO_GRAD
     nodes = []
@@ -154,6 +410,20 @@ def power(t1: Tensor, t2: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def abs(t: Tensor):
+    """
+    Applies abs function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, -2, 3])
+    x = fn.abs(t)
+    ```
+    """
     data = np.abs(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -162,6 +432,20 @@ def abs(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def log(t: Tensor):
+    """
+    Applies log (ln) function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.log(t)
+    ```
+    """
     data = np.log(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -170,6 +454,20 @@ def log(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def sqrt(t: Tensor):
+    """
+    Applies sqrt function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.sqrt(t)
+    ```
+    """
     data = np.sqrt(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -178,6 +476,20 @@ def sqrt(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def square(t: Tensor):
+    """
+    Applies square function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.square(t)
+    ```
+    """
     data = np.square(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -186,6 +498,21 @@ def square(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def reshape(t: Tensor, shape):
+    """
+    Reshapes tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+    shape: `tuple` - new shape
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3], [4, 5, 6])
+    x = fn.reshape(t, shape=(1, 6))
+    ```
+    """
     data = np.reshape(t.data, newshape=shape)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -194,6 +521,20 @@ def reshape(t: Tensor, shape):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def sin(t: Tensor):
+    """
+    Applies sin function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.sin(t)
+    ```
+    """
     data = np.sin(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -202,6 +543,20 @@ def sin(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def cos(t: Tensor):
+    """
+    Applies cos function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.cos(t)
+    ```
+    """
     data = np.cos(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -210,6 +565,20 @@ def cos(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def tan(t: Tensor):
+    """
+    Applies tan function to all the elements of the input tensor.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([1, 2, 3])
+    x = fn.tan(t)
+    ```
+    """
     data = np.tan(t.data)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -218,6 +587,22 @@ def tan(t: Tensor):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def mean(t: Tensor, axis=None, keepdims=False):
+    """
+    Numpy mean function equivalent.
+
+    ## Parameters:
+    t: `Tensor` - input tensor
+    axis: `int` - defaults to None
+    keepdims: `bool` - defaults to False
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([[1, 2, 3], [4, 5, 6]])
+    x = fn.mean(t, axis=1)
+    ```
+    """
     data = np.mean(t.data, axis=axis, dtype=np.float, keepdims=keepdims)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
@@ -229,6 +614,23 @@ def mean(t: Tensor, axis=None, keepdims=False):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def where(condition: Tensor, t1: Tensor=None, t2: Tensor=None):
+    """
+    Numpy where function equivalent.
+
+    ## Parameters:
+    condition: `Tensor` - condition tensor
+    t1: `Tensor` - tensor from which to take elements if condition is met, defaults to None
+    t2: `Tensor` - tensor from which to take elements if condition is not met, defaults to None
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t1 = Tensor([1, 2, 3])
+    t2 = Tensor([4, 5, 6])
+    x = fn.where(t1 < 2, t1, t2)
+    ```
+    """
     t1 = to_tensor(t1) if t1 is not None else None
     t2 = to_tensor(t2) if t2 is not None else None
     data = np.where(condition.data, t1.data if t1 else None, t2.data if t2 else None)
@@ -243,6 +645,9 @@ def where(condition: Tensor, t1: Tensor=None, t2: Tensor=None):
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def _broadcast(target_grad, input_grad):
+    """
+    Helper function. Unbroadcasts gradient if input tensor didn't have the same dimensions.
+    """
     while np.ndim(input_grad) > np.ndim(target_grad):
         input_grad = np.sum(input_grad, axis=0)
     for axis, dim in enumerate(np.shape(target_grad)):
@@ -251,6 +656,9 @@ def _broadcast(target_grad, input_grad):
     return input_grad
 
 def _match_shape(x, shape, axis, keepdims):
+    """
+    Helper function. Matches shape of tensors and returns the number of repetitions when calculating gradient.
+    """
     if shape == ():
         return x, 1
     axis = list(axis) if isinstance(axis, tuple) else axis

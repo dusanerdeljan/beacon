@@ -1,17 +1,16 @@
 import numpy as np 
 
 class Tensor(object):
-    """
-    Wrapper around numpy's ndarray with dynamic computational graph constuction
-    and automatic differentiation.
-    """
-
+    
     class ComputationalGraphNode(object):
-        """
-        Helper class which models a node in the computational graph.
-        Stores tensor and derivative function of the primitive operation.
-        """
         def __init__(self, tensor, df):
+            """
+            Helper class which models a node in the computational graph.
+            Stores tensor and derivative function of the primitive operation.
+
+            tensor: `Tensor`
+            df: `callable` - derivative function
+            """
             super().__init__()
             self.tensor = tensor
             self.df = df
@@ -19,6 +18,15 @@ class Tensor(object):
     NO_GRAD = False
 
     def __init__(self, data, requires_grad = False, nodes = None):
+        """
+        Wrapper around numpy's ndarray with dynamic computational graph constuction
+        and automatic differentiation.
+
+        ## Parameters
+        data: `np.ndarray` - numpy array which represents a tensor
+        requires_grad: `bool` - should tensor's gradient be tracked, defaults to False 
+        nodes: `list(Tensor.ComputationalGraphNode)` - list of successors in the computational graph, defaults to None
+        """
         super().__init__()
         self.data = self._to_numpy_ndarray(data)
         self.requires_grad = requires_grad

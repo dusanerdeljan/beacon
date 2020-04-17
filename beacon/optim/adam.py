@@ -4,6 +4,9 @@ from beacon.tensor import functions as fn
 class Adam(Optimizer):
 
     def __init__(self, parameters, lr=0.01, beta1=0.9, beta2=0.999, epsilon=1e-8):
+        """
+        Adam optimizer.
+        """
         super().__init__(parameters, lr=lr)
         self.beta1 = fn.to_tensor(beta1)
         self.beta2 = fn.to_tensor(beta2)

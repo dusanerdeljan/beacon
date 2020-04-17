@@ -1,6 +1,9 @@
 from beacon.tensor import Tensor
 
 class beacon(object):
+    """
+    Provides no gradient block
+    """
 
     class BeaconNoGrad(object):
         def __init__(self):

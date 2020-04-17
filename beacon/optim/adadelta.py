@@ -4,6 +4,9 @@ from beacon.tensor import functions as fn
 class Adadelta(Optimizer):
 
     def __init__(self, parameters, lr=0.01, beta=0.99, epsilon=1e-8):
+        """
+        Adadelta optimizer.
+        """
         super().__init__(parameters, lr=lr)
         self.epsilon = epsilon
         self.beta = fn.to_tensor(beta)

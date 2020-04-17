@@ -4,6 +4,9 @@ from beacon.tensor import functions as fn
 class Adagrad(Optimizer):
 
     def __init__(self, parameters, lr=0.01, epsilon=1e-8):
+        """
+        Adagrad optimizer.
+        """
         super().__init__(parameters, lr=lr)
         self.epison = epsilon
         self.G = [fn.zeros_like(p) for p in self.parameters]

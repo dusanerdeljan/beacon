@@ -4,6 +4,9 @@ from beacon.tensor import functions as fn
 class Momentum(Optimizer):
 
     def __init__(self, parameters, lr=0.01, momentum=0.9):
+        """
+        SGD with Momentum optimizer.
+        """
         super().__init__(parameters, lr=lr)
         self.momentum = fn.to_tensor(momentum)
         self.vs = [fn.zeros_like(p) for p in self.parameters]
