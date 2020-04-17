@@ -142,7 +142,7 @@ def divide(t1: Tensor, t2: Tensor):
     if t1.requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: _broadcast(t1.grad.data, x /t2.data)))
     if t2.requires_grad:
-        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: _broadcast(t2.grad.data, (-x * t1.data)/(t2.data**2))))
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t2, df=lambda x: _broadcast(t2.grad.data, -x * t1.data/ t2.data**2 )))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
 def sum(t: Tensor, axis=None, keepdims=False):
@@ -661,6 +661,60 @@ def where(condition: Tensor, t1: Tensor=None, t2: Tensor=None):
         nodes.append(Tensor.ComputationalGraphNode(tensor=t1, df=lambda x: np.where(condition.data, np.zeros_like(x), x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
+def min(t: Tensor, axis=None, keepdims=False):
+    """
+    Returns min elements of the input tensor alongside given axis.
+
+    ## Parameters
+    t: `Tensor` - input tensor
+
+    axis: `int` - defaults to None
+
+    keepdims: `bool` - defaults to None
+
+    ## Example usage
+
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([[1, 2, 3], [4, 5, 6]])
+    x = fn.min(t, axis=1, keepdims=True)
+    ```
+    """
+    data = np.min(t.data, axis=axis, keepdims=keepdims)
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
+    nodes = []
+    if requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: _min_max_grad(x, data, t.data, axis, keepdims)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def max(t: Tensor, axis=None, keepdims=False):
+    """
+    Returns max elements of the input tensor alongside given axis.
+
+    ## Parameters
+    t: `Tensor` - input tensor
+
+    axis: `int` - defaults to None
+
+    keepdims: `bool` - defaults to None
+
+    ## Example usage
+
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([[1, 2, 3], [4, 5, 6]])
+    x = fn.max(t, axis=1, keepdims=True)
+    ```
+    """
+    data = np.max(t.data, axis=axis, keepdims=keepdims)
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
+    nodes = []
+    if requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: _min_max_grad(x, data, t.data, axis, keepdims)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
 def _broadcast(target_grad, input_grad):
     """
     Helper function. Unbroadcasts gradient if input tensor didn't have the same dimensions.
@@ -671,6 +725,14 @@ def _broadcast(target_grad, input_grad):
         if dim == 1:
             input_grad = np.sum(input_grad, axis=axis, keepdims=True)
     return input_grad
+
+def _min_max_grad(x, result, inputs, axis, keepdims):
+    """
+    Helper function for min and max functions.
+    """
+    reps, _ = _match_shape(x, inputs.shape, axis, keepdims)
+    argmax = x == _match_shape(result, inputs.shape, axis, keepdims)[0]
+    return reps * argmax / np.sum(argmax, axis=axis, keepdims=True)
 
 def _match_shape(x, shape, axis, keepdims):
     """

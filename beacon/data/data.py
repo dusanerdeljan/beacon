@@ -8,7 +8,7 @@ def data_sequence(inputs, labels, batch_size=32, shuffle=True):
     inputs: `np.array or python list` - inputs to the neural network
 
     labels: `np.array or python list` - targets
-
+    
     batch_size: `int` - defaults to 32
 
     shuffle: `bool` - defaults to True
@@ -27,7 +27,7 @@ def data_sequence(inputs, labels, batch_size=32, shuffle=True):
     for batch_begin in indices:
         X.append(inputs[batch_begin:batch_begin+batch_size])
         Y.append(labels[batch_begin:batch_begin+batch_size])
-    return np.array(X, dtype=np.float), np.array(Y, dtype=np.float)
+    return X, Y
 
 def data_generator(inputs, labels, batch_size=32, shuffle=True):
     """

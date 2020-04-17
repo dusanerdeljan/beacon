@@ -134,7 +134,7 @@ def softmax(t: Tensor):
     a = F.softmax(t)
     ```
     """
-    y = fn.exp(t)
+    y = fn.exp(t - fn.max(t, axis=-1, keepdims=True))
     return y / fn.sum(y, axis=-1, keepdims=True)
 
 def elu(t: Tensor, alpha=1.0):
@@ -198,6 +198,7 @@ def mean_squared_error(output: Tensor, target: Tensor):
     loss = F.mean_squared_error(output, target)
     ```
     """
+    output, target = fn.to_tensor(output), fn.to_tensor(target)
     return fn.sum(fn.mean(fn.square(output - target), axis=-1))
 
 def mean_absolute_error(output: Tensor, target: Tensor):
@@ -219,6 +220,7 @@ def mean_absolute_error(output: Tensor, target: Tensor):
     loss = F.mean_absolute_error(output, target)
     ```
     """
+    output, target = fn.to_tensor(output), fn.to_tensor(target)
     return fn.sum(fn.mean(fn.abs(output - target), axis=-1))
 
 def categorical_crossentropy(output: Tensor, target: Tensor):
@@ -240,8 +242,9 @@ def categorical_crossentropy(output: Tensor, target: Tensor):
     loss = F.categorical_crossentropy(output, target)
     ```
     """
+    output, target = fn.to_tensor(output), fn.to_tensor(target)
     output = fn.clip(output, 1e-7, 1 - 1e-7)
-    return fn.sum(target * -fn.log(output), axis=-1, keepdims=False)
+    return fn.sum(target * -fn.log(output))
 
 def binary_crossentropy(output: Tensor, target: Tensor):
     """
@@ -262,6 +265,7 @@ def binary_crossentropy(output: Tensor, target: Tensor):
     loss = F.binary_crossentropy(output, target)
     ```
     """
+    output, target = fn.to_tensor(output), fn.to_tensor(target)
     output = fn.clip(output, 1e-7, 1 - 1e-7)
     return (target * -fn.log(sigmoid(output)) + (1 - target) * -fn.log(1 - sigmoid(output)))
 
@@ -284,6 +288,7 @@ def nll_loss(output: Tensor, target: Tensor):
     loss = F.nll_loss(output, target)
     ```
     """
+    output, target = fn.to_tensor(output), fn.to_tensor(target)
     output = fn.clip(output, 1e-7, 1 - 1e-7)
     return -fn.sum(target * fn.log(output))
 
@@ -306,6 +311,7 @@ def quadratic(output: Tensor, target: Tensor):
     loss = F.quadratic(output, target)
     ```
     """
+    output, target = fn.to_tensor(output), fn.to_tensor(target)
     return fn.sum(fn.square(output - target))
 
 def half_quadratic(output: Tensor, target: Tensor):
@@ -327,4 +333,5 @@ def half_quadratic(output: Tensor, target: Tensor):
     loss = F.half_quadratic(output, target)
     ```
     """
+    output, target = fn.to_tensor(output), fn.to_tensor(target)
     return 0.5 * fn.sum(fn.square(output - target))
