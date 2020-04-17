@@ -9,3 +9,4 @@ from beacon.optim.nadam import Nadam
 from beacon.optim.adamax import Adamax
 from beacon.optim.amsgrad import AMSGrad
 from beacon.optim.adabound import Adabound
+from beacon.optim.amsbound import AMSBound
