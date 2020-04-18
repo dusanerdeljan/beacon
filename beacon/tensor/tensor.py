@@ -52,6 +52,12 @@ class Tensor(object):
         for node in self.nodes:
             node.tensor.backward(Tensor(data=node.df(grad.data)))
 
+    def argmax(self, axis=None):
+        """
+        Argmax operation. This operation is not differentiable, so use it only when evaluating your model.
+        """
+        return np.argmax(self.data, axis=axis)
+
     def __repr__(self):
         """
         String representation.
