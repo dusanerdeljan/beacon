@@ -1,6 +1,7 @@
 from beacon.nn.parameter import Parameter
 from abc import ABC, abstractmethod
 from inspect import getmembers
+import pickle
 
 class Module(ABC):
 
@@ -34,3 +35,30 @@ class Module(ABC):
         Abstract method which performs forward pass.
         """
         pass
+
+    def save(self, file_path: str):
+        """
+        Saves a model to a file.
+
+        ## Parameters
+        file_path: `str`
+        """
+        with open(file_path, 'wb') as file:
+            pickle.dump(self, file, pickle.HIGHEST_PROTOCOL)
+
+    @classmethod
+    def load(cls, file_path: str):
+        """
+        Loads model from a file.
+
+        ## Parameters
+        file_path: `str`
+
+        ## Raises
+        `RuntimeError` if specified file stores model of different class
+        """
+        with open(file_path, 'rb') as file:
+            loaded_module = pickle.load(file)
+        if type(loaded_module) != cls:
+            raise RuntimeError("Tried to load a model of different type!")
+        return loaded_module
