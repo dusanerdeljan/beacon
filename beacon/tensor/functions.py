@@ -730,8 +730,8 @@ def _min_max_grad(x, result, inputs, axis, keepdims):
     """
     Helper function for min and max functions.
     """
-    reps, _ = _match_shape(x, inputs.shape, axis, keepdims)
-    argmax = x == _match_shape(result, inputs.shape, axis, keepdims)[0]
+    reps, _ = _match_shape(x, np.shape(x), axis, keepdims)
+    argmax = inputs == _match_shape(result, inputs.shape, axis, keepdims)[0]
     return reps * argmax / np.sum(argmax, axis=axis, keepdims=True)
 
 def _match_shape(x, shape, axis, keepdims):
