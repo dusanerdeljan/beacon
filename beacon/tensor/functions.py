@@ -735,6 +735,7 @@ def slice(t: Tensor, index):
 
     ## Parameter:
     t: `Tensor` - input tensor
+    
     index: `tuple` - numpy-like index
 
     ## Example usage
