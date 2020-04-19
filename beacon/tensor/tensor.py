@@ -88,11 +88,19 @@ class Tensor(object):
         from beacon.tensor.functions import slice
         return slice(self, index)
 
+    # TODO: Refactor this function
     def __setitem__(self, index, t):
         t = self._to_tensor(t)
         self.data[index] = t.data
-        if t.grad:
-            self.grad.data[index] = t.grad.data
+        t.requires_grad = self.requires_grad and not Tensor.NO_GRAD
+        if t.requires_grad:
+            t.zero_grad()
+        if self.requires_grad:
+            def grad(x):
+                grad = np.zeros_like(self.grad.data)
+                grad[index] = x
+                return grad
+            t.nodes.append(Tensor.ComputationalGraphNode(tensor=self, df=lambda x: grad(x)))
 
     def __add__(self, t):
         from beacon.tensor.functions import add

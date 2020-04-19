@@ -41,5 +41,6 @@ class Convolution(Module):
         for dim in range(self.weight.shape[0]):                 # iterate over all the filters
             for i in range(0, new_size, self.stride):           # iterate over height of the input
                 for j in range(0, new_size, self.stride):       # iterate over width of the input
-                    conv[...,dim] = fn.sum(self.weight[dim,...] * x[i:i+self.filter_size, j:j+self.filter_size, :]) + self.biases[dim,...]
+                    conv[i//self.stride,j//self.stride,dim] = \
+                    fn.sum(self.weight[dim,...] * x[i:i+self.filter_size, j:j+self.filter_size, :]) + self.biases[dim,...]
         return conv

@@ -754,7 +754,6 @@ def slice(t: Tensor, index):
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: slice_grad(x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
 
-
 def _broadcast(target_grad, input_grad):
     """
     Helper function. Unbroadcasts gradient if input tensor didn't have the same dimensions.
