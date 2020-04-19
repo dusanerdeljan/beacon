@@ -1,4 +1,5 @@
 from beacon.nn.parameter import Parameter
+from beacon.tensor import functions as fn
 from abc import ABC, abstractmethod
 from inspect import getmembers
 import pickle
@@ -27,7 +28,7 @@ class Module(ABC):
         """
         Redefined call operator.
         """
-        return self.forward(x)
+        return self.forward(fn.to_tensor(x))
 
     @abstractmethod
     def forward(self, x):

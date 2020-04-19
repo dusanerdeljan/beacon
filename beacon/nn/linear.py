@@ -22,4 +22,4 @@ class Linear(Module):
         self.bias = Parameter(shape=(1, outputs), initializer=zeros)
 
     def forward(self, x):
-        return fn.matmul(fn.to_tensor(x), self.weights) + self.bias
+        return fn.matmul(x, self.weights) + self.bias

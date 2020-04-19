@@ -58,13 +58,41 @@ class Tensor(object):
         """
         return np.argmax(self.data, axis=axis)
 
+    @property
+    def shape(self):
+        """
+        Returns the shape of the tensor.
+        """
+        return self.data.shape
+
     def __repr__(self):
         """
         String representation.
         """
         return f"<Tensor data={self.data}, requires_grad={self.requires_grad}>"
 
+    def item(self):
+        """
+        Returns the only element from in the tensor.
+
+        ## Raises
+        `RuntimeError` if tensor has more than 1 element.
+        """
+        if self.data.shape != ():
+            raise RuntimeError("Cannot call item on non-scalar type!")
+        return self.data
+
     ### Redefined operators ###
+
+    def __getitem__(self, index):
+        from beacon.tensor.functions import slice
+        return slice(self, index)
+
+    def __setitem__(self, index, t):
+        t = self._to_tensor(t)
+        self.data[index] = t.data
+        if t.grad:
+            self.grad.data[index] = t.grad.data
 
     def __add__(self, t):
         from beacon.tensor.functions import add
@@ -112,11 +140,6 @@ class Tensor(object):
 
     def __isub__(self, t):
         self.data = self.data - self._to_tensor(t).data
-
-    def item(self):
-        if self.data.shape != ():
-            raise RuntimeError("Cannot call item on non-scalar type!")
-        return self.data
 
     def __eq__(self, other):
         return Tensor(self.data == self._to_tensor(other).data)

@@ -37,6 +37,20 @@ def zeros_like(t: Tensor):
     """
     return to_tensor(np.zeros_like(t.data))
 
+def zeros(shape):
+    """
+    Returns zero-tensor of the passed shape.
+
+    ## Parameters
+    shape: `tuple` - shape of tensor
+
+    ## Example usage
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = fn.zeros(shape=(4, 4, 2))
+    """
+    return to_tensor(np.zeros(shape=shape))
+
 def add(t1: Tensor, t2: Tensor):
     """
     Adds two tensors.
@@ -714,6 +728,32 @@ def max(t: Tensor, axis=None, keepdims=False):
     if requires_grad:
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: _min_max_grad(x, data, t.data, axis, keepdims)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def slice(t: Tensor, index):
+    """
+    Return values in the tensor at the given position.
+
+    ## Parameter:
+    t: `Tensor` - input tensor
+    index: `tuple` - numpy-like index
+
+    ## Example usage
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([[1, 1], [2, 2]])
+    x = fn.slice(t, (0,...))
+    """
+    data = t.data[index]
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
+    nodes = []
+    if requires_grad:
+        def slice_grad(x):
+            grad = np.zeros_like(t.data)
+            grad[index] = x
+            return grad
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: slice_grad(x)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
 
 def _broadcast(target_grad, input_grad):
     """
