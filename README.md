@@ -90,9 +90,10 @@ for epoch in range(1, 1001):
 
 ```python
 with beacon.no_grad():
-    for x in x_train:
+    for x in x_test:
         output = model(x)
         print(output)
+        print(output.argmax())
 ```
 
 ## Extending beacon
