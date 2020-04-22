@@ -69,6 +69,7 @@ optimizer = Adam(model.parameters(), lr=0.1)
 #### Example training loop
 
 ```python
+model.train()
 for epoch in range(1, 1001):
     full_loss = 0
     n_loss = 0
@@ -89,6 +90,7 @@ for epoch in range(1, 1001):
 #### Evaluating a model
 
 ```python
+model.eval()
 with beacon.no_grad():
     for x in x_test:
         output = model(x)
