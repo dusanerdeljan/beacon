@@ -32,6 +32,7 @@ x_test = mnist.test_images().reshape(10000, 784) / 255.0
 y_test = mnist.test_labels().reshape(10000, 1)
 
 # Training
+model.train()
 for epoch in range(1, 11):
     full_loss = 0
     n_loss = 0
@@ -46,6 +47,7 @@ for epoch in range(1, 11):
     print(f"Epoch: {epoch}, Loss: {full_loss/n_loss}")
 
 # Evaluation
+model.eval()
 correct = 0
 for x, y in zip(x_test, y_test):
     output = model(x)
