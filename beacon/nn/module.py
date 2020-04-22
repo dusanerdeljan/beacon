@@ -11,10 +11,11 @@ class Module(ABC):
         Represents abstract module in a neural network.
         """
         super().__init__()
+        self.train_mode = False
 
     def parameters(self):
         """
-        Returns all the parameters from the subclass module
+        Returns all the parameters from the subclass module.
         """
         params = []
         for _, param in getmembers(self):
@@ -23,6 +24,16 @@ class Module(ABC):
             elif isinstance(param, Module):
                 params.extend(param.parameters())
         return params
+
+    def modules(self):
+        """
+        Returns all the modulesfrom the subclass module.
+        """
+        modules = []
+        for _, module in getmembers(self):
+            if isinstance(module, Module):
+                modules.append(module)
+        return modules
 
     def __call__(self, x):
         """
@@ -36,6 +47,21 @@ class Module(ABC):
         Abstract method which performs forward pass.
         """
         pass
+
+    def train(self):
+        """
+        Prepares module for training.
+        """
+        for module in self.modules():
+            module.train_mode = True
+
+    def eval(self):
+        """
+        Prepares module for evaluation.
+        """
+        for module in self.modules():
+            module.train_mode = False
+
 
     def save(self, file_path: str):
         """
