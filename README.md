@@ -3,6 +3,24 @@ PyTorch-like deep learning library with dynamic computational graph construction
 
 ## Example usage
 
+ * [Defining a custom model](#defining-a-custom-model)
+    * [Custom parameter initialization](#customizing-parameter-initializer)
+    * [Sequential model](#sequential-model)
+    
+ * [Training a model](#training-a-model)
+    * [Getting the data](#getting-the-data)
+      * [Sequences](#using-sequences)
+      * [Generators](#using-generator)
+    * [Selecting an optimizer](#selecting-an-optimizer)
+    * [Example training loop](#example-training-loop)
+    * [Evaluating a model](#evaluating-a-model)
+    
+ * [Extending beacon](#extending-beacon)
+    * [Defining custom activation functions](#defining-custom-activation-functions)
+      * [Defining custom activation layer](#custom-activation-function-layer)
+    * [Defining custom loss functions](#defining-custom-loss-functions)
+    * [Defining custom optimizers](#defining-custom-optimizers)
+
 ### Defining a custom model
 
 In order to create your own model you have to inherit from Module class and override `forward` method. Later on, you can train your model or use it as part of a bigger network.
@@ -67,11 +85,11 @@ y_train = [[1], [0], [1], [0]]
 ```
 
 There are two possible ways of preparing data:
- * Using sequences
+##### Using sequences
 ```python
 X, Y = data_sequence(x_train, y_train, batch_size=4, shuffle=True)
 ```
- * Using generator
+##### Using generator
 ```python
 for x, y in data_generator(x_train, y_train, batch_size=4, shuffle=True):
   do_some_task(x, y)
