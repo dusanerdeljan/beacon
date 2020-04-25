@@ -23,6 +23,9 @@ class Module(ABC):
                 params.append(param)
             elif isinstance(param, Module):
                 params.extend(param.parameters())
+            elif isinstance(param, tuple):
+                for p in param:
+                    params.extend(p.parameters())
         return params
 
     def modules(self):
@@ -33,6 +36,9 @@ class Module(ABC):
         for _, module in getmembers(self):
             if isinstance(module, Module):
                 modules.append(module)
+            elif isinstance(module, tuple):
+                for m in module:
+                    modules.append(m)
         return modules
 
     def __call__(self, x):

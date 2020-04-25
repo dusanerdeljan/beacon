@@ -1,0 +1,1 @@
+from beacon.nn.models.sequential import Sequential
