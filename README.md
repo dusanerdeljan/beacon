@@ -37,6 +37,24 @@ from beacon.nn.init import xavier_normal, zeros
 self.fc2 = Linear(inputs=4, outputs=4, weight_initializer=xavier_normal, bias_initializer=zeros)
 ```
 
+#### Sequential model
+
+An easier way to get started is to use a predefined sequential model.
+
+```python
+from beacon.nn.models import Sequential
+from beacon.nn.activations import Sigmoid
+
+model = Sequential(
+  Linear(2, 4),
+  Sigmoid(),
+  Linear(4, 4),
+  Sigmoid(),
+  Linear(4,1),
+  Sigmoid()
+)
+```
+
 ### Training a model
 
 #### Getting the data
@@ -112,6 +130,28 @@ from beacon.tensor import Tensor
 
 def my_activation(t: Tensor) -> Tensor:
   return fn.sin(t)
+```
+
+#### Custom activation function layer
+
+If you want to be able to use your custom activation function in the sequential model, you have to create a class which inherits from Activation class. When you do that, you can use your custom activation layer just as predefined layers.
+
+```python
+from beacon.nn.activations import Activation
+
+class MyActivation(Activation):
+
+  def __init__(self):
+    self.activatino = my_activation
+```
+
+Or if you don't want to define a separate function:
+
+```python
+class MyActivation(Activation):
+
+  def __init__(self):
+    self.activation = lambda x: fn.sin(x)
 ```
 
 ### Defining custom loss functions
