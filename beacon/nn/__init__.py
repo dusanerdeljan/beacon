@@ -1,6 +1,6 @@
 from beacon.nn.module import Module
 from beacon.nn.linear import Linear
-from beacon.nn.conv import Convolution
+from beacon.nn.conv import Conv
 from beacon.nn.dropout import Dropout
 from beacon.nn.batch_norm import BatchNorm
 from beacon.nn.no_grad import beacon

@@ -1,5 +1,8 @@
 from beacon.tensor import Tensor
 import numpy as np
+import scipy.signal as sp
+from skimage.measure import block_reduce
+import builtins
 
 ############################
 ### Differentiable operators
@@ -771,6 +774,163 @@ def slice(t: Tensor, index):
             return grad
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: slice_grad(x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def convolve(input: Tensor, filter: Tensor, mode='full'):
+    """
+    Performs a convolution over the input tensor.
+
+    ## Parameters
+    input: `Tensor` - input tensor
+
+    filter: `Tensor` - convolution filter
+
+    mode: `str` - defaults to full (available vaild and same)
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    import numpy as np
+
+    X = Tensor(data=np.random.rand(3, 28, 28), requires_grad=True)
+    F = Tensor(data=np.ones(shape=(3, 5, 5)), requires_grad=True)
+    output = fn.convolve(X, F, 'valid')
+    ```
+    """
+    data = sp.convolve(input.data, filter.data, mode)
+    requires_grad = (input.requires_grad or filter.requires_grad) and not Tensor.NO_GRAD
+    nodes = []
+    if input.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=input, df=lambda x: _grad_conv_filter(x, filter.data)))
+    if filter.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=filter, df=lambda x: _grad_conv_input(x, input.data)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def concatenate(tensors: tuple, axis=0):
+    """
+    Concatenates input tensors along given axis
+
+    ## Parameters:
+    tensors: `tuple(Tensor)` - input tensors
+
+    axis: `int` - concatenation axis, defaults to 0
+
+    ## Example usage:
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+
+    t1 = Tensor([1, 2, 3], requires_grad=True)
+    t2 = Tensor([4, 5, 5])
+    t3 = Tensor([7, 8, 9])
+    res = fn.concatenate(tensors=(t1, t2, t3), axis=1)
+    ```
+    """
+    data = np.concatenate(tuple([t.data for t in tensors]), axis).view(np.ndarray)
+    requires_grad = any([t.requires_grad for t in tensors]) and not Tensor.NO_GRAD
+    nodes = []
+    for idx, t in enumerate(tensors):
+        if t.requires_grad:
+            nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: _grad_concatenate(x, data, axis, tensors, idx)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def max_pool(t: Tensor, kernel_size):
+    """
+    Performs max pooling on the input tensor
+
+    ## Parameters
+    t: `Tensor` - input tensor
+
+    kernel_size: `int` - kernel size
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+
+    t = Tensor([
+      [  20,  200,   -5,   23],
+      [ -13,  134,  119,  100],
+      [ 120,   32,   49,   25],
+      [-120,   12,    9,   23]
+    ])
+    sample = fn.max_pool(t, kernel_size=2)
+    ```
+    """
+    if len(t.shape) == 2:
+        data = block_reduce(t.data, (kernel_size, kernel_size), np.max)
+    elif len(t.shape) == 3:
+        data = block_reduce(t.data, (t.shape[0], kernel_size, kernel_size), np.max)
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
+    nodes = []
+    if t.requires_grad:
+        def _max_pool_grad(x):
+            mask_res = data.repeat(kernel_size, axis=0)
+            for axis in range(1, data.ndim):
+                mask_res = mask_res.repeat(kernel_size, axis)
+            mask = np.equal(t.data, mask_res).astype(np.float)
+            grad = x
+            for axis in range(0, data.ndim):
+                grad = grad.repeat(kernel_size, axis)
+            return mask * grad
+        nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: _max_pool_grad(x)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def average_pool(t: Tensor, kernel_size):
+    """
+    Performs average pooling on the input tensor
+
+    ## Parameters
+    t: `Tensor` - input tensor
+
+    kernel_size: `int` - kernel size
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+
+    t = Tensor([
+      [  20,  200,   -5,   23],
+      [ -13,  134,  119,  100],
+      [ 120,   32,   49,   25],
+      [-120,   12,    9,   23]
+    ])
+    sample = fn.average_pool(t, kernel_size=2)
+    ```
+    """
+    if len(t.shape) == 2:
+        data = block_reduce(t.data, (kernel_size, kernel_size), np.mean)
+    elif len(t.shape) == 3:
+        data = block_reduce(t.data, (t.shape[0], kernel_size, kernel_size), np.mean)
+    requires_grad = t.requires_grad and not Tensor.NO_GRAD
+    nodes = []
+    if t.requires_grad:
+        # TODO: Implement gradient
+        pass
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def _grad_concatenate(x, data, axis, tensors, argnum):
+    """
+    Helper function, gets gradient of concatenation w.r.t. tensors[argnum]
+    """
+    shapes = [np.shape(t)[axis] for t in tensors[:argnum]]
+    start = builtins.sum(shapes[:-1])
+    idxs = [builtins.slice(None)] * data.ndim
+    idxs[axis] = builtins.slice(start, start + shapes[-1])
+    return x[tuple(idxs)]
+
+def _grad_conv_input(x, inputs):
+    """
+    Helper function, gets convolution operation gradient w.r.t. filter
+    """
+    return sp.convolve(inputs, x, mode='valid')
+
+def _grad_conv_filter(x, filter):
+    """
+    Helper function, gets convolution operation gradient w.r.t. input
+    """
+    return sp.convolve(np.rot90(filter, 2), x, mode='full')
 
 def _broadcast(target_grad, input_grad):
     """

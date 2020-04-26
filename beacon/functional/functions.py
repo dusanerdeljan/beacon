@@ -376,7 +376,7 @@ def half_quadratic(output: Tensor, target: Tensor):
 ### Pooling functions
 ########################
 
-def max_pool(t: Tensor, kernel_size=2, stride=2):
+def max_pool(t: Tensor, kernel_size=2):
     """
     Applies max pool filter to input tensor.
 
@@ -385,25 +385,16 @@ def max_pool(t: Tensor, kernel_size=2, stride=2):
 
     kernel_size: `int` - size of max pool filter, defaults to 2
 
-    stride: `int` - horizontal and vertical stride, defaults to 2
-
     ## Example usage
     from beacon.nn import Tensor
     from beacon.functions import functional as F
     import numpy as np
     t = Tensor(data=np.random.normal(size=(4, 4, 2)), requires_grad=True)
-    x = F.max_pool(t, kernel_size=2, stride=2)
+    x = F.max_pool(t, kernel_size=2)
     """
-    old_w, old_h, old_d = t.shape
-    w, h, d = (old_w - kernel_size)//stride+1, (old_h-kernel_size)//stride + 1, old_d
-    result = Tensor(data=np.zeros(shape=(w, h, d)), requires_grad=True)
-    for dim in range(d):                                 # iterate over depth
-        for i in range(0, old_h, stride):                # iterate over height
-            for j in range(0, old_w, stride):            # iterate over width     
-                result[i//stride,j//stride,dim] = fn.max(t[i:i+kernel_size,j:j+kernel_size,dim])
-    return result
+    return fn.max_pool(t, kernel_size)
 
-def average_pool(t: Tensor, kernel_size=2, stride=2):
+def average_pool(t: Tensor, kernel_size=2):
     """
     Applies average pool filter to input tensor.
 
@@ -412,20 +403,12 @@ def average_pool(t: Tensor, kernel_size=2, stride=2):
 
     kernel_size: `int` - size of average pool filter, defaults to 2
 
-    stride: `int` - horizontal and vertical stride, defaults to 2
-
     ## Example usage
     from beacon.nn import Tensor
     from beacon.functions import functional as F
     import numpy as np
     t = Tensor(data=np.random.normal(size=(4, 4, 2)), requires_grad=True)
-    x = F.average_pool(t, kernel_size=2, stride=2)
+    x = F.average_pool(t, kernel_size=2)
     """
-    old_w, old_h, old_d = t.shape
-    w, h, d = (old_w - kernel_size)//stride+1, (old_h-kernel_size)//stride + 1, old_d
-    result = Tensor(data=np.zeros(shape=(w, h, d)), requires_grad=True)
-    for dim in range(d):                                 # iterate over depth
-        for i in range(0, old_h, stride):                # iterate over height
-            for j in range(0, old_w, stride):            # iterate over width     
-                result[i//stride,j//stride,dim] = fn.mean(t[i:i+kernel_size,j:j+kernel_size,dim])
-    return result
+    # return fn.average_pool(t, kernel_size)
+    raise NotImplementedError("Average pooling derivative not yet implemented.")
