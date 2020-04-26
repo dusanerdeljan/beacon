@@ -176,10 +176,39 @@ def tanh(t: Tensor):
     """
     return fn.tanh(t)
 
+##############
+### Reductions
+##############
+
+def sum_over_batch_size(loss_function):
+    """
+    Decorator which reduces loss function over batch size.
+
+    ## Parameters
+    loss_function: `callable` - loss function
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    from beacon.functional import functions as F
+
+    @F.sum_over_batch_size
+    def my_loss(output: Tensor, target: Tensor):
+        return fn.sin(output - target)
+    ```
+    """
+    def wrapper(*args, **kwargs):
+        batch_loss = fn.sum(loss_function(*args, **kwargs))
+        batch_loss.data /= np.size(args[0].data)
+        return batch_loss
+    return wrapper
+
 ########################
 ### Loss functions
 ########################
 
+@sum_over_batch_size
 def mean_squared_error(output: Tensor, target: Tensor):
     """
     Mean squared error loss function.
@@ -200,8 +229,9 @@ def mean_squared_error(output: Tensor, target: Tensor):
     ```
     """
     output, target = fn.to_tensor(output), fn.to_tensor(target)
-    return fn.sum(fn.mean(fn.square(output - target), axis=-1))
+    return fn.mean(fn.square(output - target), axis=-1)
 
+@sum_over_batch_size
 def mean_absolute_error(output: Tensor, target: Tensor):
     """
     Mean absolute error loss function.
@@ -222,8 +252,9 @@ def mean_absolute_error(output: Tensor, target: Tensor):
     ```
     """
     output, target = fn.to_tensor(output), fn.to_tensor(target)
-    return fn.sum(fn.mean(fn.abs(output - target), axis=-1))
+    return fn.mean(fn.abs(output - target), axis=-1)
 
+@sum_over_batch_size
 def categorical_crossentropy(output: Tensor, target: Tensor):
     """
     Cross entropy loss function.
@@ -245,8 +276,9 @@ def categorical_crossentropy(output: Tensor, target: Tensor):
     """
     output, target = fn.to_tensor(output), fn.to_tensor(target)
     output = fn.clip(output, 1e-7, 1 - 1e-7)
-    return fn.sum(target * -fn.log(output))
+    return target * -fn.log(output)
 
+@sum_over_batch_size
 def binary_crossentropy(output: Tensor, target: Tensor):
     """
     Binary cross entropy loss function.
@@ -270,6 +302,7 @@ def binary_crossentropy(output: Tensor, target: Tensor):
     output = fn.clip(output, 1e-7, 1 - 1e-7)
     return (target * -fn.log(sigmoid(output)) + (1 - target) * -fn.log(1 - sigmoid(output)))
 
+@sum_over_batch_size
 def nll_loss(output: Tensor, target: Tensor):
     """
     Negative log likelihood loss function.
@@ -291,8 +324,9 @@ def nll_loss(output: Tensor, target: Tensor):
     """
     output, target = fn.to_tensor(output), fn.to_tensor(target)
     output = fn.clip(output, 1e-7, 1 - 1e-7)
-    return -fn.sum(target * fn.log(output))
+    return -target * fn.log(output)
 
+@sum_over_batch_size
 def quadratic(output: Tensor, target: Tensor):
     """
     Quadratic loss function.
@@ -313,8 +347,9 @@ def quadratic(output: Tensor, target: Tensor):
     ```
     """
     output, target = fn.to_tensor(output), fn.to_tensor(target)
-    return fn.sum(fn.square(output - target))
+    return fn.square(output - target)
 
+@sum_over_batch_size
 def half_quadratic(output: Tensor, target: Tensor):
     """
     Half quadratic loss function.
@@ -335,7 +370,7 @@ def half_quadratic(output: Tensor, target: Tensor):
     ```
     """
     output, target = fn.to_tensor(output), fn.to_tensor(target)
-    return 0.5 * fn.sum(fn.square(output - target))
+    return 0.5 * fn.square(output - target)
 
 ########################
 ### Pooling functions

@@ -51,6 +51,23 @@ def zeros(shape):
     """
     return to_tensor(np.zeros(shape=shape))
 
+def size(t: Tensor):
+    """
+    Return the number of elements in the input tensor.
+
+    ## Parameters
+    t: `Tensor` - input tensor
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    t = Tensor([[1, 2, 3], [4, 5, 6]])
+    num_elems = fn.size(t) # num_elems == 6
+    ```
+    """
+    return np.size(t.data)
+
 def add(t1: Tensor, t2: Tensor):
     """
     Adds two tensors.
