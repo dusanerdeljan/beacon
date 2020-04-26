@@ -184,6 +184,16 @@ def my_loss(output: Tensor, target: Tensor) -> Tensor:
   return fn.sum(fn.sin(fn.square(output - target)))
 ```
 
+You can add sum over batch size decorator to your custom loss function, for example:
+
+```python
+from beacon.functional import functions as F
+
+@F.sum_over_batch_size
+def my_new_loss(output: Tensor, target: Tensor) -> Tensor:
+   return fn.sin(fn.square(output - target)) # there is no fn.sum like in the previous example, it is done automatically
+```
+
 ### Defining custom optimizers
 
 When defining custom optimizer you have to inherit from Optimizer base class and redefine `_step` method. When you define your optimizer it can be used just as predefined optimizers.
