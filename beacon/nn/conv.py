@@ -25,8 +25,7 @@ class Conv(Module):
         """
         super().__init__()
         self.mode = mode
-        self.weights = [Parameter(shape=(input_channels, filter_size, filter_size), initializer=lambda shape: np.ones(shape=shape)) \
-            for _ in range(output_channels)]
+        self.weights = [Parameter(shape=(input_channels, filter_size, filter_size), initializer=filter_initializer) for _ in range(output_channels)]
         self.biases = [Parameter(shape=(1,1,1), initializer=bias_initializer) for _ in range(output_channels)]
 
     def forward(self, x):

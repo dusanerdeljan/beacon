@@ -857,21 +857,22 @@ def max_pool(t: Tensor, kernel_size):
     sample = fn.max_pool(t, kernel_size=2)
     ```
     """
+    kernel_shape = (1, kernel_size, kernel_size) if len(t.shape) == 3 else (kernel_size, kernel_size)
     if len(t.shape) == 2:
         data = block_reduce(t.data, (kernel_size, kernel_size), np.max)
     elif len(t.shape) == 3:
-        data = block_reduce(t.data, (t.shape[0], kernel_size, kernel_size), np.max)
+        data = block_reduce(t.data, (1, kernel_size, kernel_size), np.max)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if t.requires_grad:
         def _max_pool_grad(x):
-            mask_res = data.repeat(kernel_size, axis=0)
-            for axis in range(1, data.ndim):
-                mask_res = mask_res.repeat(kernel_size, axis)
+            mask_res = data.repeat(1, axis=0)
+            for axis in range(kernel_shape[0], data.ndim):
+                mask_res = mask_res.repeat(kernel_shape[axis], axis)
             mask = np.equal(t.data, mask_res).astype(np.float)
             grad = x
             for axis in range(0, data.ndim):
-                grad = grad.repeat(kernel_size, axis)
+                grad = grad.repeat(kernel_shape[axis], axis)
             return mask * grad
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: _max_pool_grad(x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
@@ -902,7 +903,7 @@ def average_pool(t: Tensor, kernel_size):
     if len(t.shape) == 2:
         data = block_reduce(t.data, (kernel_size, kernel_size), np.mean)
     elif len(t.shape) == 3:
-        data = block_reduce(t.data, (t.shape[0], kernel_size, kernel_size), np.mean)
+        data = block_reduce(t.data, (1, kernel_size, kernel_size), np.mean)
     requires_grad = t.requires_grad and not Tensor.NO_GRAD
     nodes = []
     if t.requires_grad:
