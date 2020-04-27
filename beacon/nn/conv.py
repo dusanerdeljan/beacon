@@ -8,7 +8,7 @@ class Conv(Module):
 
     def __init__(self, input_channels, output_channels, filter_size, mode='valid', filter_initializer=normal, bias_initializer=zeros):
         """
-        Convolution module. Inputs to the conv module are of shape (input_channels, X, Y)
+        Convolution module. Inputs to the conv module are of shape (batch_size, input_channels, X, Y)
 
         ## Parameters
         input_channels: `int` - Number of input channels
@@ -25,10 +25,10 @@ class Conv(Module):
         """
         super().__init__()
         self.mode = mode
-        self.weights = [Parameter(shape=(input_channels, filter_size, filter_size), initializer=filter_initializer) for _ in range(output_channels)]
-        self.biases = [Parameter(shape=(1,1,1), initializer=bias_initializer) for _ in range(output_channels)]
+        self.weights = Parameter(shape=(input_channels, output_channels, filter_size, filter_size), initializer=filter_initializer)
+        self.biases = Parameter(shape=(1, output_channels, 1, 1), initializer=bias_initializer)
 
     def forward(self, x):
-        filters = [fn.convolve(x, W, self.mode) + bias for W, bias in zip(self.weights, self.biases)]
-        return fn.concatenate(filters, axis=0)
+        raise NotImplementedError("Not yet implemented.")
+        
         
