@@ -15,6 +15,7 @@ class RNN(Module):
 
         activation: `callable` - activation function, defaults to Tanh
         """
+        super().__init__()
         self._input_hidden = Linear(inputs, outputs)
         self._hidden_hidden = Linear(inputs, outputs, use_bias=False)
         self._activation = activation
