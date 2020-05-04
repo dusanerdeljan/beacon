@@ -1,8 +1,6 @@
 from beacon.nn.module import Module, Parameter
 from beacon.nn.init import normal, zeros
 from beacon.tensor import Tensor
-from beacon.tensor import functions as fn
-import numpy as np
 
 class Conv(Module):
 

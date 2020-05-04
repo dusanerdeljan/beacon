@@ -79,14 +79,14 @@ def hard_sigmoid(t: Tensor):
     value = 0.2 * t + 0.5
     return fn.clip(value, 0.0, 1.0)
 
-def relu(t: Tensor, alpha=0.0):
+def relu(t: Tensor, alpha=None):
     """
     ReLU activation function.
 
     ## Parameters
     t: `Tensor` - tensor on which to apply activation function
     
-    alpha: `float` - scale factor, defaults to 0.0
+    alpha: `float` - scale factor, defaults to None (0.0)
 
     ## Example usage
     ```python
@@ -97,7 +97,7 @@ def relu(t: Tensor, alpha=0.0):
     a = F.relu(t)
     ```
     """
-    return t * (t >= 0.0) + alpha * t * (t < 0.0)
+    return t * (t >= 0.0) + alpha * t * (t < 0.0) if alpha else t * (t >= 0.0)
 
 def leaky_relu(t: Tensor, alpha = 0.01):
     """

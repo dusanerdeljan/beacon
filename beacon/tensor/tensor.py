@@ -8,7 +8,9 @@ class Tensor(object):
             Helper class which models a node in the computational graph.
             Stores tensor and derivative function of the primitive operation.
 
+            ## Parameters
             tensor: `Tensor`
+            
             df: `callable` - derivative function
             """
             super().__init__()
@@ -24,7 +26,9 @@ class Tensor(object):
 
         ## Parameters
         data: `np.ndarray` - numpy array which represents a tensor
+
         requires_grad: `bool` - should tensor's gradient be tracked, defaults to False 
+        
         nodes: `list(Tensor.ComputationalGraphNode)` - list of successors in the computational graph, defaults to None
         """
         super().__init__()

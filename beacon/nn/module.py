@@ -58,6 +58,7 @@ class Module(ABC):
         """
         Prepares module for training.
         """
+        self.train_mode = True
         for module in self.modules():
             module.train_mode = True
 
@@ -65,6 +66,7 @@ class Module(ABC):
         """
         Prepares module for evaluation.
         """
+        self.train_mode = False
         for module in self.modules():
             module.train_mode = False
 

@@ -32,8 +32,8 @@ class BatchNorm(Module):
         if self.train_mode:
             mean = fn.mean(x)
             standard_deviation = fn.mean(fn.square(x - mean))
-            self.u_avg = self.momentum * self.u_avg + (1 - self.momentum) * mean
-            self.std_avg = self.momentum * self.std_avg + (1 - self.momentum) * standard_deviation
+            self.u_avg.data = self.momentum.data * self.u_avg.data + (1 - self.momentum.data) * mean.data
+            self.std_avg.data = self.momentum.data * self.std_avg.data + (1 - self.momentum.data) * standard_deviation.data
         else:
             mean = self.u_avg
             standard_deviation = self.std_avg
