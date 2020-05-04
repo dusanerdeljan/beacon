@@ -371,3 +371,38 @@ def half_quadratic(output: Tensor, target: Tensor):
     """
     output, target = fn.to_tensor(output), fn.to_tensor(target)
     return 0.5 * fn.square(output - target)
+
+#####################
+### Pooling functions
+#####################
+
+def max_pool(x: Tensor, kernel_size: tuple, stride: tuple=None, padding: tuple=(0, 0)):
+    """
+    Performs max pooling.
+
+    ## Parameters
+    x: `Tensor` - input tensor
+
+    kernel_size: `tuple` - shape of the kernel
+
+    stride: `tuple` - stride, if not set default shape is same as kernel_size
+
+    padding: `tuple` - padding, defaults to (0, 0)
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.functional import functions as F
+    import numpy as np
+
+    x = Tensor(data=np.random.rand(32, 10, 24, 24), requires_grad=True)
+    sample = F.max_pool(x, kernel_size=(2, 2))
+    output = F.max_pool(x, 2)
+    ```
+    """
+    kernel_size = kernel_size if isinstance(kernel_size, tuple) else (kernel_size, kernel_size)
+    stride = stride if stride else kernel_size
+    return fn.max_pool(x, kernel_size, stride, padding)
+
+def average_pool(x: Tensor, kenrel_size: tuple, stride: tuple=None, padding: tuple=None):
+    raise NotImplementedError("Not yet implemented")

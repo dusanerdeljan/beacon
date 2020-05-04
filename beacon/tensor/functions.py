@@ -1,4 +1,5 @@
 from beacon.tensor import Tensor
+from dezero.functions_conv import im2col_array, deconv2d, col2im_array
 import numpy as np
 import builtins
 
@@ -772,6 +773,122 @@ def slice(t: Tensor, index):
             return grad
         nodes.append(Tensor.ComputationalGraphNode(tensor=t, df=lambda x: slice_grad(x)))
     return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def conv(x: Tensor, w: Tensor, stride: tuple, padding: tuple):
+    """
+    Performs convolution.
+
+    ## Parameters
+    x: `Tensor` - input tensor
+
+    w: `Tensor` - filter
+
+    stride: `tuple` - (vertical stride, horizontal stride)
+
+    padding: `tuple` - (vertical padding, horizontal padding)
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    import numpy as np
+
+    x = Tensor(data=np.random.rand(32, 1, 28, 28), requires_grad=True)
+    w = Tensor(data=np.random.rand(10, 1, 5, 5), requires_grad=True)
+    output = fn.conv(x, w, (1, 1), (0, 0))
+    ```
+    """
+    data = _conv(x.data, w.data, stride, padding)
+    requires_grad = (x.requires_grad or w.requires_grad) and not Tensor.NO_GRAD
+    nodes = []
+    if x.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=x, df=lambda g: _conv_grad(0, g, x.data, w.data, stride, padding)))
+    if w.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=w, df=lambda g: _conv_grad(1, g, x.data, w.data, stride, padding)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def max_pool(x: Tensor, kernel: tuple, stride: tuple, padding: tuple):
+    """
+    Performs max pooling.
+
+    ## Parameters
+    x: `Tensor` - input tensor
+
+    kernel: `tuple` - kernel shape
+
+    stride: `tuple` - stride
+
+    padding: `tuple` - padding
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    import numpy as np
+
+    x = Tensor(data=np.random.rand(32, 10, 24, 24), requires_grad=True)
+    sample = fn.max_pool(x, kernel=(2, 2), stride=(2, 2), padding=(0, 0))
+    ```
+    """
+    data, indexes = _max_pool(x.data, kernel, stride, padding)
+    requies_grad = x.requires_grad and not Tensor.NO_GRAD
+    nodes = []
+    if x.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=x, df=lambda g: _max_pool_grad(g, x, kernel, stride, padding, indexes)))
+    return Tensor(data=data, requires_grad=requies_grad, nodes=nodes)
+
+def _max_pool(x, kernel, stride, padding):
+    """
+    Helper functions, performs max pooling.
+    """
+    col = im2col_array(x, kernel, stride, padding,to_matrix=False)
+    N, C, KH, KW, OH, OW = col.shape
+    col = col.reshape(N, C, KH * KW, OH, OW)
+    indexes = col.argmax(axis=2)    # will be used in backward pass
+    data = col.max(axis=2)  # depthwise max
+    return data, indexes
+
+def _max_pool_grad(grad, x, kernel, stride, padding, indexes):
+    """
+    Helper function for calculating max pool grad.
+    """
+    N, C, OH, OW = grad.shape
+    N, C, H, W = x.data.shape
+    KH, KW = kernel
+    grad_faltten = np.zeros((N * C * OH * OW * KH * KW), dtype=np.float)
+    indexes = (indexes.ravel() + np.arange(0, indexes.size * KH * KW, KH * KW))
+    grad_faltten[indexes] = grad.ravel()
+    g = grad_faltten.reshape(N, C, OH, OW, KH, KW)
+    g = np.swapaxes(g, 2, 4)
+    g = np.swapaxes(g, 3, 5)
+    return col2im_array(g, (N, C, H, W), kernel, stride, padding, to_matrix=False)
+
+def _conv(x, w, stride, padding):
+    """
+    Helper function, performs convolution.
+    """
+    KH, KW = w.shape[2:]    # kernel shape
+    col = im2col_array(x, (KH, KW), stride, padding, to_matrix=False)
+    data = np.tensordot(col, w, ((1, 2, 3), (1, 2, 3)))
+    data = np.rollaxis(data, 3, 1)
+    return data
+
+def _conv_grad(argnum, grad, x, w, stride, padding):
+    """
+    Return conv gradient w.r.t. argnum
+    """
+    if argnum == 0: # grad w.r.t. input
+        return _deconv(grad, w, stride, padding)
+    else:   # grad w.r.t. weight
+        KH, KW = w.shape[2:]
+        col = im2col_array(x, (KH, KW), stride, padding, to_matrix=False)
+        return np.tensordot(grad, col, ((0, 2, 3), (0, 4, 5)))
+
+def _deconv(x, w, stride, padding):
+    """
+    Helper function for conv gradient.
+    """
+    return deconv2d(x, w, None, stride, padding).data
 
 def _broadcast(target_grad, input_grad):
     """

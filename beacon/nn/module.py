@@ -25,7 +25,8 @@ class Module(ABC):
                 params.extend(param.parameters())
             elif isinstance(param, tuple):
                 for p in param:
-                    params.extend(p.parameters())
+                    if isinstance(p, Parameter):
+                        params.extend(p.parameters())
         return params
 
     def modules(self):
