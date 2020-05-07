@@ -12,8 +12,6 @@ class GRU(Module):
         inputs: `int` - number of input features
 
         outputs: `int` - number of output features
-
-        activation: `callable` - activation function, defaults to Tanh
         """
         super().__init__()
         self._z_x = Linear(inputs, outputs)

@@ -7,7 +7,7 @@ class Conv(Module):
 
     def __init__(self, input_channels, output_channels, filter_size, stride=(1,1), padding=(0,0), filter_initializer=normal, bias_initializer=zeros):
         """
-        Convolution module. Inputs to the conv module are of shape (batch_size, input_channels, X, Y)
+        Convolution module. Inputs to the conv module are of shape (batch_size, input_channels, height, width)
 
         ## Parameters
         input_channels: `int` - Number of input channels

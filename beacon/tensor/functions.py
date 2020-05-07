@@ -837,6 +837,56 @@ def max_pool(x: Tensor, kernel: tuple, stride: tuple, padding: tuple):
         nodes.append(Tensor.ComputationalGraphNode(tensor=x, df=lambda g: _max_pool_grad(g, x, kernel, stride, padding, indexes)))
     return Tensor(data=data, requires_grad=requies_grad, nodes=nodes)
 
+def average_pool(x: Tensor, kernel: tuple, stride: tuple, padding: tuple):
+    """
+    Performs average pooling.
+
+    ## Parameters
+    x: `Tensor` - input tensor
+
+    kernel: `tuple` - kernel shape
+
+    stride: `tuple` - stride
+
+    padding: `tuple` - padding
+
+    ## Example usage
+    ```python
+    from beacon.tensor import Tensor
+    from beacon.tensor import functions as fn
+    import numpy as np
+
+    x = Tensor(data=np.random.rand(32, 10, 24, 24), requires_grad=True)
+    sample = fn.average_pool(x, kernel=(2, 2), stride=(2, 2), padding=(0, 0))
+    ```
+    """
+    data = _average_pool(x.data, kernel, stride, padding)
+    requires_grad = x.requires_grad and not Tensor.NO_GRAD
+    nodes = []
+    if x.requires_grad:
+        nodes.append(Tensor.ComputationalGraphNode(tensor=x, df=lambda g: _average_pool_grad(g, x.data, kernel, stride, padding)))
+    return Tensor(data=data, requires_grad=requires_grad, nodes=nodes)
+
+def _average_pool(x, kernel, stride, padding):
+    """
+    Performs average pooling.
+    """
+    img_col = im2col_array(x, kernel, stride, padding, to_matrix=False)
+    return np.mean(img_col, axis=(2, 3))
+
+def _average_pool_grad(grad, x, kernel, stride, padding):
+    """
+    Helper function for calculating average pooling grad.
+    """
+    N, C, H, W = grad.shape
+    KH, KW = kernel
+    grad /= KH*KW
+    g = np.broadcast_to(grad.reshape(-1), (KH, KW, np.prod(grad.shape)))
+    g = np.reshape(g, newshape=(KH, KW, N, C, H, W))
+    g = np.transpose(g, axes=(2, 3, 0, 1, 4, 5))
+    return col2im_array(g, x.shape, kernel, stride, padding, to_matrix=False)
+    
+
 def _max_pool(x, kernel, stride, padding):
     """
     Helper functions, performs max pooling.
