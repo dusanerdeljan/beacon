@@ -10,3 +10,4 @@ from beacon.nn.gru import GRU
 from beacon.nn.no_grad import beacon
 from beacon.nn.init import normal, uniform, zeros, xavier_normal, xavier_uniform, lecun_normal, lecun_uniform, he_normal, he_uniform
 from beacon.nn.activations import Sigmoid, Softmax, Softplus, Softsign, ReLU, HardSigmoid, LeakyReLU, ELU, Tanh
+from beacon.nn.pooling import MaxPool, AveragePool
